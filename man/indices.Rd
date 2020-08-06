@@ -7,5 +7,5 @@
 indices(conn, targetSchema)
 }
 \description{
-Execute Athena Indexes
+SQL for indices derived from \href{"https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP\%20CDM\%20postgresql\%20pk\%20indexes.txt"}{OHDSI OMOP CDM PK Indexes.txt}
 }

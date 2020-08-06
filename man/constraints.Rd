@@ -7,5 +7,5 @@
 constraints(conn, targetSchema)
 }
 \description{
-Execute Athena Constraints
+The constraints are performed using the SQL found at \href{https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP\%20CDM\%20postgresql\%20constraints.txt}{OHDSI OMOP CDM Postgresl Constraints.txt}
 }
