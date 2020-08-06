@@ -49,10 +49,9 @@ runProcess <-
 
 
                 if (verbose) {
-                        secretary::typewrite("Copying vocabularies...", "\n")
+                        secretary::typewrite("Copying vocabularies (approx 5 minutes)...", "\n")
                 }
 
-                # Time: 5 minutes
                 copyVocabularies(vocabularyPath = "~/Desktop/athena",
                                  targetSchema = targetSchema,
                                  conn = conn)
@@ -68,8 +67,21 @@ runProcess <-
 
 
                 if (verbose) {
-                        secretary::typewrite("Executing indexes", "\n")
+                        secretary::typewrite("Executing indexes (approx 20 minutes)...", "\n")
                 }
+
+
+                indices(conn = conn,
+                        targetSchema = targetSchema)
+
+
+                if (verbose) {
+                        secretary::typewrite("Executing constraints", "\n")
+                }
+
+                constraints(conn = conn,
+                            targetSchema = targetSchema)
+
 
 
 

@@ -9,12 +9,16 @@ constraints <-
 
 
         sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
-                                                                         FileName = "indexes.sql",
+                                                                         FileName = "constraints.sql",
                                                                          package = "setupAthena")),
                                  schema = targetSchema)
 
-        pg13::send(conn = conn,
-                   sql_statement = sql)
+
+        sqlList <- pg13::parseSQL(sql_statement = sql)
+
+
+        pg13::sendList(conn = conn,
+                       sqlList = sqlList)
 
 
     }

@@ -14,10 +14,10 @@ indices <-
                                  schema = targetSchema)
 
 
-        sqlList <<- pg13::parseSQL(sql_statement = sql)
+        sqlList <- pg13::parseSQL(sql_statement = sql)
 
-        # pg13::sendList(conn = conn,
-        #                sqlList = sqlList)
+        pg13::sendList(conn = conn,
+                       sqlList = sqlList)
 
 
     }
