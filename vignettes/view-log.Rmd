@@ -1,0 +1,32 @@
+---
+title: "View Log of Athena Updates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{View Log of Athena Updates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Setup
+
+```{r setup}
+library(setupAthena)
+library(tidyverse)
+library(rlang)
+```
+
+# View Athena Log 
+
+```{r view log}
+
+setupAthena::loadLog()
+
+```
+
