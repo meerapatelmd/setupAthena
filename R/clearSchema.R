@@ -1,5 +1,6 @@
 #' Clear the Current Target Schema
 #' @import pg13
+#' @import secretary
 #' @param conn A Connection object.
 #' @param cascade If TRUE, will drop cascade the schema.
 #' @export
@@ -19,5 +20,8 @@ clearSchema <-
                 pg13::dropSchema(conn = conn,
                                  schema = targetSchema,
                                  cascade = cascade)
+
+                pg13::createSchema(conn = conn,
+                                   schema = targetSchema)
 
         }

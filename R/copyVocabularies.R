@@ -3,8 +3,10 @@
 #' If CPT4 is desired and has not been unpacked, please do so following the instructions in the README.txt that is in the unpacked vocabulary download.
 #' @import secretary
 #' @import police
-#' @import DatabaseConnector
+#' @import pg13
+#' @import progress
 #' @export
+
 
 
 copyVocabularies <-
@@ -17,6 +19,11 @@ copyVocabularies <-
 
             stop('dir "', vocabularyPath, '" does not exist.')
 
+        }
+
+        if (missing(conn)) {
+
+            stop('conn is missing with no default')
         }
 
         vocabulary_files <-
@@ -40,12 +47,20 @@ copyVocabularies <-
 
         table_names <- tolower(cave::strip_fn(vocabulary_files))
 
-        while (length(vocabulary_files) > 0) {
+        totalFiles <- length(vocabulary_files)
+        pb <- progress::progress_bar$new(clear = FALSE,
+                                         format = ":what [:bar] :elapsedfull :current/:total (:percent)", total = totalFiles)
+        pb$tick(0)
+        Sys.sleep(0.2)
 
-            vocabulary_file <- vocabulary_files[1]
-            table_name <- table_names[1]
+        for (i in 1:length(vocabulary_files)) {
 
-            # sql <- paste0("COPY ", table_name, " FROM '", vocabulary_file, "' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b' ;")
+            vocabulary_file <- vocabulary_files[i]
+            table_name <- table_names[i]
+            pb$tick(tokens = list(what = table_name))
+            Sys.sleep(0.2)
+
+            # sql <- paste0("COPY ", targetSchema, ".", table_name, " FROM '", vocabulary_file, "' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b' ;")
 
             sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
                                                                              FileName = "copyVocabularies.sql",
@@ -54,18 +69,9 @@ copyVocabularies <-
                                      tableName = table_name,
                                      vocabulary_file = vocabulary_file)
 
-            secretary::typewrite("Starting", table_name, "...")
-
             tryCatch(pg13::send(conn = conn,
                                 sql_statement = sql),
-                     error = function(err) secretary::typewrite_error(sql))
-
-
-            secretary::typewrite("Completed", table_name)
-
-            #file.remove(vocabulary_file)
-            vocabulary_files <- vocabulary_files[-1]
-            table_names <- table_names[-1]
+                     error = function(err) secretary::typewrite_error("\n", sql, "\n"))
 
         }
 
