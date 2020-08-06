@@ -1,4 +1,6 @@
 #' Execute Athena Constraints
+#' @description
+#' The constraints are performed using the SQL found at \href{https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt}{OHDSI OMOP CDM Postgresl Constraints.txt}
 #' @import pg13
 #' @import SqlRender
 #' @export
