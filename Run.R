@@ -1,21 +1,10 @@
-conn <- chariot::connectAthena()
-
-# Drop current schema
-setupAthena::clearSchema(conn = conn,
-            targetSchema = "public",
-            cascade = TRUE)
-
-pg13::send(conn = conn,
-           pg13::renderCreateSchema(schema = "public"))
-
-setupAthena::ddl(conn = conn,
-                 targetSchema = "public")
-
-# Time: 5 minutes
-copyVocabularies(vocabularyPath = "~/Desktop/athena",
-                 targetSchema = "public",
-                              cpt4 = TRUE,
-                 conn = conn)
-
-chariot::dcAthena(conn = conn,
-                  remove = TRUE)
+# library(tidyverse)
+# library(rlang)
+# conn <- chariot::connectAthena()
+#
+# pg13::lsTables(conn = conn,
+#                schema = "public") %>%
+#         cave::vector_to_string()
+#
+# chariot::dcAthena(conn = conn,
+#                   remove = TRUE)

@@ -1,6 +1,7 @@
 #' Copy New Vocabulary to Athena
 #' @description
-#' If CPT4 is desired and has not been unpacked, please do so following the instructions in the README.txt that is in the unpacked vocabulary download.
+#' This function copies a freshly downloaded and unpacked vocabulary export from \href{athena.ohdsi.org}{Athena}.
+#' If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download. Otherwise, CPT4 will not be included in the new concept table. The reconstitution process is logged within the same vocabulary folder and a warning is returned in the R console if there is no evidence of a log file recursively in the same folder.
 #' @import secretary
 #' @import police
 #' @import pg13
@@ -12,7 +13,6 @@
 copyVocabularies <-
     function(vocabularyPath,
              targetSchema,
-             cpt4 = TRUE,
              conn) {
 
         if (!dir.exists(vocabularyPath)) {
@@ -32,8 +32,6 @@ copyVocabularies <-
                        pattern = "[.]csv$")
 
 
-        if (!cpt4) {
-
                 if (any(grepl("CONCEPT_CPT4.csv", vocabulary_files))) {
 
                         file.remove(grep("CONCEPT_CPT4.csv", vocabulary_files, value = TRUE))
@@ -41,9 +39,20 @@ copyVocabularies <-
                             list.files(vocabularyPath,
                                        full.names = TRUE,
                                        pattern = "[.]csv$")
+
+                        logFiles <-
+                        list.files(vocabularyPath,
+                                   full.names = TRUE,
+                                   recursive = TRUE,
+                                   pattern = "[.]{1}log$")
+
+                        if (!length(logFiles)) {
+
+                                warning("'vocabularyPath' does not contain a log file suggesting that CPT4 has been reconstituted")
+
+                        }
                 }
 
-        }
 
         table_names <- tolower(cave::strip_fn(vocabulary_files))
 
