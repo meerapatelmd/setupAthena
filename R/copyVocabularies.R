@@ -32,31 +32,32 @@ copyVocabularies <-
                        pattern = "[.]csv$")
 
 
-                if (any(grepl("CONCEPT_CPT4.csv", vocabulary_files))) {
+        if (any(grepl("CONCEPT_CPT4.csv", vocabulary_files))) {
 
-                        file.remove(grep("CONCEPT_CPT4.csv", vocabulary_files, value = TRUE))
-                        vocabulary_files <-
-                            list.files(vocabularyPath,
-                                       full.names = TRUE,
-                                       pattern = "[.]csv$")
+                file.remove(grep("CONCEPT_CPT4.csv", vocabulary_files, value = TRUE))
+                vocabulary_files <-
+                    list.files(vocabularyPath,
+                               full.names = TRUE,
+                               pattern = "[.]csv$")
 
-                        logFiles <-
-                        list.files(vocabularyPath,
-                                   full.names = TRUE,
-                                   recursive = TRUE,
-                                   pattern = "[.]{1}log$")
+                logFiles <-
+                list.files(vocabularyPath,
+                           full.names = TRUE,
+                           recursive = TRUE,
+                           pattern = "[.]{1}log$")
 
-                        if (!length(logFiles)) {
+                if (!length(logFiles)) {
 
-                                warning("'vocabularyPath' does not contain a log file suggesting that CPT4 has been reconstituted")
+                        warning("'vocabularyPath' does not contain a log file suggesting that CPT4 has been reconstituted")
 
-                        }
                 }
+        }
 
 
         table_names <- tolower(cave::strip_fn(vocabulary_files))
 
         totalFiles <- length(vocabulary_files)
+
         pb <- progress::progress_bar$new(clear = FALSE,
                                          format = ":what [:bar] :elapsedfull :current/:total (:percent)", total = totalFiles)
         pb$tick(0)

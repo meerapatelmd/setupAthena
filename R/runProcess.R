@@ -14,21 +14,38 @@ runProcess <-
                  verbose = TRUE) {
 
 
-                # Dropping and creating new schema
-                if (verbose) {
-                        secretary::typewrite("Dropping and Creating new ", crayon::italic(targetSchema), " schema...")
+
+                if (tolower(targetSchema) %in% tolower(pg13::lsSchema(conn = conn))) {
+
+
+                                # Dropping and creating new schema
+                                if (verbose) {
+                                        secretary::typewrite("Dropping and creating new ", crayon::italic(targetSchema), " schema...")
+                                }
+
+                                clearSchema(conn = conn,
+                                                         targetSchema = targetSchema,
+                                                         cascade = TRUE)
+
+                } else {
+
+                        if (verbose) {
+                                secretary::typewrite("Creating new ", crayon::italic(targetSchema), " schema...")
+                        }
+
+                        pg13::createSchema(conn = conn,
+                                           schema = targetSchema)
+
                 }
 
-                clearSchema(conn = conn,
-                                         targetSchema = "public",
-                                         cascade = TRUE)
+
 
                 if (verbose) {
-                        secretary::typewrite("DDL...")
+                        secretary::typewrite("Executing DDL...")
                 }
 
                 ddl(conn = conn,
-                                 targetSchema = "public")
+                    targetSchema = targetSchema)
 
 
                 if (verbose) {
@@ -37,12 +54,24 @@ runProcess <-
 
                 # Time: 5 minutes
                 copyVocabularies(vocabularyPath = "~/Desktop/athena",
-                                 targetSchema = "public",
+                                 targetSchema = targetSchema,
                                  conn = conn)
 
                 if (verbose) {
-                        secretary::typewrite("Copying vocabularies...", "\n")
+
+                        secretary::typewrite("Logging Row Counts", "\n")
+
                 }
+
+                logRowCount(conn = conn,
+                            targetSchema = targetSchema)
+
+
+                if (verbose) {
+                        secretary::typewrite("Executing indexes", "\n")
+                }
+
+
 
 
         }
