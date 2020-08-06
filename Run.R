@@ -3,8 +3,7 @@
 # library(R.cache)
 # conn <- chariot::connectAthena()
 #
-#
-# indices(conn = conn,
+# setupAthena::constraints(conn = conn,
 #         targetSchema = "public")
 #
 # chariot::dcAthena(conn = conn,

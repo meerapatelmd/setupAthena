@@ -1,11 +1,12 @@
-#' Run Update
+#' Run Full Setup
 #' @description
 #' This function runs the entire process of dropping the target schema if it exists and populating the vocabulary tables.
-#' @importFrom secretary typewrite
+#' @import secretary
+#' @import pg13
 #' @export
 
 
-runProcess <-
+runSetup <-
         function(conn = conn,
                  targetSchema = "public",
                  cascade = TRUE,
@@ -13,6 +14,9 @@ runProcess <-
                  cpt4 = TRUE,
                  verbose = TRUE) {
 
+
+                secretary::typewrite_note("This process will take approx 30 to 45 minutes.")
+                secretary::press_enter()
 
 
                 if (tolower(targetSchema) %in% tolower(pg13::lsSchema(conn = conn))) {
@@ -76,14 +80,11 @@ runProcess <-
 
 
                 if (verbose) {
-                        secretary::typewrite("Executing constraints", "\n")
+                        secretary::typewrite("Executing constraints (approx 5 minutes)", "\n")
                 }
 
                 constraints(conn = conn,
                             targetSchema = targetSchema)
-
-
-
 
 
         }
