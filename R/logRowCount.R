@@ -25,9 +25,7 @@ logRowCount <-
                 print(currentRowCount)
                 cat("\n")
 
-                historicalRowCount <-
-                        R.cache::loadCache(dirs = "setupAthena",
-                                           key = list("history"))
+                historicalRowCount <- loadLog()
 
                 storeCurrentRowCount <-
                 currentRowCount %>%
