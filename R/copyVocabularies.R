@@ -9,6 +9,7 @@
 
 copyVocabularies <-
     function(vocabularyPath,
+             targetSchema,
              cpt4 = TRUE,
              conn) {
 
@@ -37,7 +38,7 @@ copyVocabularies <-
 
         }
 
-        table_names <- cave::strip_fn(vocabulary_files)
+        table_names <- tolower(cave::strip_fn(vocabulary_files))
 
         while (length(vocabulary_files) > 0) {
 
@@ -49,6 +50,7 @@ copyVocabularies <-
             sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
                                                                              FileName = "copyVocabularies.sql",
                                                                              package = "setupAthena")),
+                                     schema = targetSchema,
                                      tableName = table_name,
                                      vocabulary_file = vocabulary_file)
 

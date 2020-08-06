@@ -4,7 +4,7 @@
 \alias{copyVocabularies}
 \title{Copy New Vocabulary to Athena}
 \usage{
-copyVocabularies(vocabularyPath, cpt4 = TRUE, conn)
+copyVocabularies(vocabularyPath, targetSchema, cpt4 = TRUE, conn)
 }
 \description{
 If CPT4 is desired and has not been unpacked, please do so following the instructions in the README.txt that is in the unpacked vocabulary download.
