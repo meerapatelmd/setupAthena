@@ -4,12 +4,12 @@
 \alias{clearSchema}
 \title{Clear the Current Target Schema}
 \usage{
-clearSchema(conn, targetSchema, drop = FALSE)
+clearSchema(conn, targetSchema, cascade = FALSE)
 }
 \arguments{
 \item{conn}{A Connection object.}
 
-\item{drop}{If TRUE, will drop the schema if it exists.}
+\item{cascade}{If TRUE, will drop cascade the schema.}
 }
 \description{
 Clear the Current Target Schema

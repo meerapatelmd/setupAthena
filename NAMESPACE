@@ -2,8 +2,8 @@
 
 export(clearSchema)
 export(copyVocabularies)
+export(ddl)
 export(execute_athena_constraints)
-export(execute_athena_ddl)
 export(execute_athena_indices)
 export(renameAthenaDB)
 import(DatabaseConnector)
