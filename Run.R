@@ -1,13 +1,13 @@
-# library(tidyverse)
-# library(rlang)
-# library(R.cache)
-# conn <- chariot::connectAthena()
-#
-# indexes(conn = conn,
-#         targetSchema = "public")
-#
-# chariot::dcAthena(conn = conn,
-#                   remove = TRUE)
+library(tidyverse)
+library(rlang)
+library(R.cache)
+conn <- chariot::connectAthena()
+
+indices(conn = conn,
+        targetSchema = "public")
+
+chariot::dcAthena(conn = conn,
+                  remove = TRUE)
 #
 #
 # # Adding the @schema. prefix to vocabulary table names

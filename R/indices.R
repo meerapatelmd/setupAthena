@@ -3,13 +3,13 @@
 #' @import SqlRender
 #' @export
 
-indexes <-
+indices <-
     function(conn,
              targetSchema) {
 
 
         sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
-                                                                         FileName = "indexes.sql",
+                                                                         FileName = "indices.sql",
                                                                          package = "setupAthena")),
                                  schema = targetSchema)
 
