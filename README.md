@@ -2,7 +2,7 @@
 This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables.  
 
 # Installation  
-`library(devtools)`
+`library(devtools)`  
 `install_github("patelm9/setupAthena")`
 
 # Requirements  
