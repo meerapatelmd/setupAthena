@@ -1,4 +1,4 @@
-# setupAthena <img src=\"man/figures/logo.png\" align=\"right\" alt=\"\" width=\"120\" /> 
+# setupAthena <img src="man/figures/logo.png" align="right" alt="" width="120" /> 
 This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables.  
 
 # Installation  
