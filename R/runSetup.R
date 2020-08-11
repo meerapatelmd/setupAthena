@@ -77,7 +77,7 @@ runSetup <-
                         secretary::typewrite("Copying vocabularies (approx 5 minutes)...", "\n")
                 }
 
-                copyVocabularies(vocabularyPath = "~/Desktop/athena",
+                copyVocabularies(vocabularyPath = vocabularyPath,
                                  targetSchema = targetSchema,
                                  conn = conn)
 
