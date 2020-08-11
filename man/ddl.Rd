@@ -9,3 +9,7 @@ ddl(conn, targetSchema)
 \description{
 Execute Athena DDL
 }
+\seealso{
+\code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
+\code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
+}

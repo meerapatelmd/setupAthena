@@ -14,3 +14,7 @@ clearSchema(conn, targetSchema, cascade = FALSE)
 \description{
 Clear the Current Target Schema
 }
+\seealso{
+\code{\link[secretary]{typewrite_warning}},\code{\link[secretary]{press_enter}}
+\code{\link[pg13]{dropSchema}},\code{\link[pg13]{createSchema}}
+}

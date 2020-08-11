@@ -1,9 +1,13 @@
 #' Clear the Current Target Schema
-#' @import pg13
-#' @import secretary
 #' @param conn A Connection object.
 #' @param cascade If TRUE, will drop cascade the schema.
+#' @seealso
+#'  \code{\link[secretary]{typewrite_warning}},\code{\link[secretary]{press_enter}}
+#'  \code{\link[pg13]{dropSchema}},\code{\link[pg13]{createSchema}}
+#' @rdname clearSchema
 #' @export
+#' @importFrom secretary typewrite_warning press_enter
+#' @importFrom pg13 dropSchema createSchema
 
 
 clearSchema <-

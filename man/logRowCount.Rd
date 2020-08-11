@@ -9,3 +9,10 @@ logRowCount(conn, targetSchema)
 \description{
 This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a "setupAthena" cache subdirectory using the caching functions in the R.cache package.
 }
+\seealso{
+\code{\link[rubix]{map_names_set}}
+\code{\link[pg13]{query}},\code{\link[pg13]{renderRowCount}}
+\code{\link[dplyr]{bind}},\code{\link[dplyr]{rename}},\code{\link[dplyr]{mutate}},\code{\link[dplyr]{select}},\code{\link[dplyr]{reexports}}
+\code{\link[tidyr]{pivot_wider}}
+\code{\link[R.cache]{saveCache}}
+}

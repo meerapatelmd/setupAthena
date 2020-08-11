@@ -1,6 +1,9 @@
 #' Load Cached Log
-#' @import R.cache
+#' @seealso
+#'  \code{\link[R.cache]{loadCache}}
+#' @rdname loadLog
 #' @export
+#' @importFrom R.cache loadCache
 
 loadLog <-
         function() {

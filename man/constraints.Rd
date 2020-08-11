@@ -7,5 +7,9 @@
 constraints(conn, targetSchema)
 }
 \description{
-The constraints are performed using the SQL found at \href{https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP\%20CDM\%20postgresql\%20constraints.txt}{OHDSI OMOP CDM Postgresl Constraints.txt}
+The constraints are performed using the SQL found at \href{https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP\%20CDM\%20postgresql\%20constraints.txt}{OHDSI OMOP CDM Postgresl Constraints}
+}
+\seealso{
+\code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
+\code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{parseSQL}},\code{\link[pg13]{sendList}}
 }

@@ -1,6 +1,11 @@
 #' Execute Athena DDL
-#' @import DatabaseConnector
+#' @seealso
+#'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
+#'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
+#' @rdname ddl
 #' @export
+#' @importFrom SqlRender render readSql
+#' @importFrom pg13 sourceFilePath send
 
 ddl <-
     function(conn,

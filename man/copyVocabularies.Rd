@@ -9,4 +9,9 @@ copyVocabularies(vocabularyPath, targetSchema, conn)
 \description{
 This function copies a freshly downloaded and unpacked vocabulary export from \href{athena.ohdsi.org}{Athena}.
 If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download. Otherwise, CPT4 will not be included in the new concept table. The reconstitution process is logged within the same vocabulary folder and a warning is returned in the R console if there is no evidence of a log file recursively in the same folder.
+\code{\link[cave]{strip_fn}}
+\code{\link[progress]{progress_bar}}
+\code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
+\code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
+\code{\link[secretary]{typewrite_error}}
 }

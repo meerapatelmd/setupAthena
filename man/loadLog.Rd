@@ -9,3 +9,6 @@ loadLog()
 \description{
 Load Cached Log
 }
+\seealso{
+\code{\link[R.cache]{loadCache}}
+}
