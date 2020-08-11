@@ -1,6 +1,6 @@
 Package: setupAthena
 Title: Setup or Update a Postgres Instance of the Athena Vocabularies
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person(given = "Meera",
            family = "Patel",

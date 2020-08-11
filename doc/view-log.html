@@ -14,29 +14,13 @@
 
 <title>View Log of Athena Updates</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -46,16 +30,14 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -64,9 +46,9 @@ pre.numberSource code > span > a:first-child::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {   }
+  {  }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -321,64 +303,32 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="setup" class="section level1">
 <h1>Setup</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(setupAthena)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="co">#&gt; Warning: replacing previous import &#39;R.cache::clearCache&#39; by &#39;pg13::clearCache&#39;</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt; when loading &#39;setupAthena&#39;</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::list_along&#39; by &#39;rlang::list_along&#39;</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::invoke&#39; by &#39;rlang::invoke&#39; when</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">#&gt; loading &#39;rubix&#39;</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::flatten_raw&#39; by &#39;rlang::flatten_raw&#39;</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::modify&#39; by &#39;rlang::modify&#39; when</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="co">#&gt; loading &#39;rubix&#39;</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::as_function&#39; by &#39;rlang::as_function&#39;</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::flatten_dbl&#39; by &#39;rlang::flatten_dbl&#39;</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-16"><a href="#cb1-16"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::flatten_lgl&#39; by &#39;rlang::flatten_lgl&#39;</span></span>
-<span id="cb1-17"><a href="#cb1-17"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::flatten_int&#39; by &#39;rlang::flatten_int&#39;</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-20"><a href="#cb1-20"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::%@%&#39; by &#39;rlang::%@%&#39; when loading</span></span>
-<span id="cb1-21"><a href="#cb1-21"></a><span class="co">#&gt; &#39;rubix&#39;</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::flatten_chr&#39; by &#39;rlang::flatten_chr&#39;</span></span>
-<span id="cb1-23"><a href="#cb1-23"></a><span class="co">#&gt; when loading &#39;rubix&#39;</span></span>
-<span id="cb1-24"><a href="#cb1-24"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::splice&#39; by &#39;rlang::splice&#39; when</span></span>
-<span id="cb1-25"><a href="#cb1-25"></a><span class="co">#&gt; loading &#39;rubix&#39;</span></span>
-<span id="cb1-26"><a href="#cb1-26"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::flatten&#39; by &#39;rlang::flatten&#39; when</span></span>
-<span id="cb1-27"><a href="#cb1-27"></a><span class="co">#&gt; loading &#39;rubix&#39;</span></span>
-<span id="cb1-28"><a href="#cb1-28"></a><span class="co">#&gt; Warning: replacing previous import &#39;purrr::prepend&#39; by &#39;rlang::prepend&#39; when</span></span>
-<span id="cb1-29"><a href="#cb1-29"></a><span class="co">#&gt; loading &#39;rubix&#39;</span></span>
-<span id="cb1-30"><a href="#cb1-30"></a><span class="kw">library</span>(tidyverse)</span>
-<span id="cb1-31"><a href="#cb1-31"></a><span class="co">#&gt; ── Attaching packages ───────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</span></span>
-<span id="cb1-32"><a href="#cb1-32"></a><span class="co">#&gt; ✓ ggplot2 3.3.2     ✓ purrr   0.3.4</span></span>
-<span id="cb1-33"><a href="#cb1-33"></a><span class="co">#&gt; ✓ tibble  3.0.3     ✓ dplyr   1.0.1</span></span>
-<span id="cb1-34"><a href="#cb1-34"></a><span class="co">#&gt; ✓ tidyr   1.1.1     ✓ stringr 1.4.0</span></span>
-<span id="cb1-35"><a href="#cb1-35"></a><span class="co">#&gt; ✓ readr   1.3.1     ✓ forcats 0.5.0</span></span>
-<span id="cb1-36"><a href="#cb1-36"></a><span class="co">#&gt; ── Conflicts ──────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
-<span id="cb1-37"><a href="#cb1-37"></a><span class="co">#&gt; x dplyr::filter() masks stats::filter()</span></span>
-<span id="cb1-38"><a href="#cb1-38"></a><span class="co">#&gt; x dplyr::lag()    masks stats::lag()</span></span>
-<span id="cb1-39"><a href="#cb1-39"></a><span class="kw">library</span>(rlang)</span>
-<span id="cb1-40"><a href="#cb1-40"></a><span class="co">#&gt; </span></span>
-<span id="cb1-41"><a href="#cb1-41"></a><span class="co">#&gt; Attaching package: &#39;rlang&#39;</span></span>
-<span id="cb1-42"><a href="#cb1-42"></a><span class="co">#&gt; The following objects are masked from &#39;package:purrr&#39;:</span></span>
-<span id="cb1-43"><a href="#cb1-43"></a><span class="co">#&gt; </span></span>
-<span id="cb1-44"><a href="#cb1-44"></a><span class="co">#&gt;     %@%, as_function, flatten, flatten_chr, flatten_dbl, flatten_int,</span></span>
-<span id="cb1-45"><a href="#cb1-45"></a><span class="co">#&gt;     flatten_lgl, flatten_raw, invoke, list_along, modify, prepend,</span></span>
-<span id="cb1-46"><a href="#cb1-46"></a><span class="co">#&gt;     splice</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(setupAthena)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">#&gt; Warning: replacing previous import 'R.cache::clearCache' by 'pg13::clearCache'</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">#&gt; when loading 'setupAthena'</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">library</span>(tidyverse)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">#&gt; ── Attaching packages ────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">#&gt; ✓ ggplot2 3.3.2     ✓ purrr   0.3.4</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co">#&gt; ✓ tibble  3.0.3     ✓ dplyr   1.0.1</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt; ✓ tidyr   1.1.1     ✓ stringr 1.4.0</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co">#&gt; ✓ readr   1.3.1     ✓ forcats 0.5.0</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co">#&gt; ── Conflicts ───────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; x dplyr::filter() masks stats::filter()</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt; x dplyr::lag()    masks stats::lag()</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw">library</span>(rlang)</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; Attaching package: 'rlang'</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; The following objects are masked from 'package:purrr':</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt;     %@%, as_function, flatten, flatten_chr, flatten_dbl, flatten_int,</span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co">#&gt;     flatten_lgl, flatten_raw, invoke, list_along, modify, prepend,</span></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co">#&gt;     splice</span></a></code></pre></div>
 </div>
 <div id="view-athena-log" class="section level1">
 <h1>View Athena Log</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2"></a>setupAthena<span class="op">::</span><span class="kw">loadLog</span>()</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt; # A tibble: 1 x 12</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt;   ROWCOUNT_DATETIME   ATTRIBUTE_DEFIN… CONCEPT CONCEPT_ANCESTOR CONCEPT_CLASS</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt;   &lt;dttm&gt;                         &lt;dbl&gt;   &lt;dbl&gt;            &lt;dbl&gt;         &lt;dbl&gt;</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; 1 2020-08-06 17:11:52                0 7423657         69730657           392</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; # … with 7 more variables: CONCEPT_RELATIONSHIP &lt;dbl&gt;, CONCEPT_SYNONYM &lt;dbl&gt;,</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; #   DOMAIN &lt;dbl&gt;, DRUG_STRENGTH &lt;dbl&gt;, RELATIONSHIP &lt;dbl&gt;,</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; #   SOURCE_TO_CONCEPT_MAP &lt;dbl&gt;, VOCABULARY &lt;dbl&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">setupAthena<span class="op">::</span><span class="kw">loadLog</span>()</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; NULL</span></a></code></pre></div>
 </div>
 
 
