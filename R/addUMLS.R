@@ -11,8 +11,17 @@ addUMLS <-
     function(conn) {
 
             schema <- "umls"
-            pg13::dropSchema(conn = conn,
-                             schema = schema)
+            Schemas <- pg13::lsSchema(conn = conn)
+
+            if (schema %in% Schemas) {
+                    pg13::dropSchema(conn = conn,
+                                     schema = schema,
+                                     cascade = TRUE)
+            }
+
+            pg13::createSchema(conn = conn,
+                               schema = schema)
+
 
         sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
                                                                          FileName = "umlsddl.sql",
