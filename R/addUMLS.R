@@ -16,6 +16,7 @@ addUMLS <-
              drop_schema = TRUE,
              filePath) {
 
+            filePath <- path.expand(filePath)
 
             if (drop_schema) {
                     Schemas <- pg13::lsSchema(conn = conn)
@@ -35,14 +36,43 @@ addUMLS <-
                                                                          FileName = "mrconso.sql",
                                                                          package = "setupAthena")),
                                  schema = schema,
-                                 filePath = path.expand(filePath))
+                                 filePath = filePath)
 
         pg13::send(conn = conn,
                    sql_statement = sql)
 
 
+        for (i in 1:1000000000) {
+                if (i == 1) {
+                        pos <- vector()
+                        failedLines <- list()
+                }
 
+                Line <-
+                        police::try_catch_error_as_null(
+                        readr::read_delim(file = paste0(filePath, "/META/MRCONSO.RRF"),
+                                          delim = "|",
+                                          skip = i-1,
+                                          n_max = 1,
+                                          col_names = FALSE))
 
+                if (!is.null(Line)) {
+                        if (ncol(Line) == 19) {
 
+                        colnames(Line) <- c('CUI', 'LAT', 'TS', 'LUI', 'STT', 'SUI', 'ISPREF', 'AUI', 'SAUI', 'SCUI', 'SDUI', 'SAB', 'TTY', 'CODE', 'STR', 'SRL', 'SUPPRESS', 'CVF', 'FILLER_COLUMN')
+
+                        pg13::appendTable(conn = conn,
+                                          schema = schema,
+                                          tableName = "mrconso",
+                                          .data = Line)
+                        } else {
+                                failedLines[[length(failedLines)+1]] <- Line
+                        }
+                } else {
+                        stop("Finished")
+                }
+
+        }
     }
+
 

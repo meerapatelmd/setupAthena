@@ -27,8 +27,8 @@ CREATE TABLE @schema.MRCONSO (
 	SRL	int NOT NULL,
 	SUPPRESS	char(1) NOT NULL,
 	CVF	int,
-	dummy char(1)
+	FILLER_COLUMN text NULL
 );
-copy @schema.MRCONSO from '@filePath/MRCONSO.RRF' with delimiter as '|' null as '';
-alter table @schema.mrconso drop column dummy;
+--copy @schema.MRCONSO from '@filePath/MRCONSO.RRF' with delimiter as '|' null as '';
+--alter table @schema.mrconso drop column dummy;
 
