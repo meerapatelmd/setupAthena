@@ -29,7 +29,7 @@ loadMRCONSO <-
                  schema) {
                 filePath <- path.expand(filePath)
 
-                pb <- progress::progress_bar$new(format = "[:bar] :percent :elapsedfull",
+                pb <- progress::progress_bar$new(format = "[:bar] :current/:total :percent :elapsedfull",
                                                  total = max_lines)
 
 
@@ -48,11 +48,13 @@ loadMRCONSO <-
                                                           delim = "|",
                                                           skip = i-1,
                                                           n_max = 1,
+                                                        col_types = cols(),
                                                           col_names = FALSE)
 
                                 if (ncol(Line) == 19) {
 
                                         colnames(Line) <- c('CUI', 'LAT', 'TS', 'LUI', 'STT', 'SUI', 'ISPREF', 'AUI', 'SAUI', 'SCUI', 'SDUI', 'SAB', 'TTY', 'CODE', 'STR', 'SRL', 'SUPPRESS', 'CVF', 'FILLER_COLUMN')
+
 
                                         pg13::appendTable(conn = conn,
                                                           schema = schema,

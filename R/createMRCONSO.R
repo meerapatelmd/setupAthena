@@ -5,12 +5,12 @@
 #' @seealso
 #'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
 #'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
-#' @rdname addUMLS
+#' @rdname createMRCONSO
 #' @export
 #' @importFrom SqlRender render readSql
 #' @importFrom pg13 sourceFilePath send lsSchema dropSchema createSchema
 
-addUMLS <-
+createMRCONSO <-
     function(conn,
              schema = "umls",
              drop_schema = TRUE) {
