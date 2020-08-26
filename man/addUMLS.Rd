@@ -4,7 +4,7 @@
 \alias{addUMLS}
 \title{Add the MRCONSO UMLS Metathesaurus}
 \usage{
-addUMLS(conn, schema = "umls", drop_schema = TRUE, filePath)
+addUMLS(conn, schema = "umls", drop_schema = TRUE)
 }
 \arguments{
 \item{schema}{name of schema to write to}
