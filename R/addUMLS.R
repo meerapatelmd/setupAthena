@@ -35,11 +35,10 @@ addUMLS <-
                                                                          FileName = "mrconso.sql",
                                                                          package = "setupAthena")),
                                  schema = schema,
-                                 filePath = filePath)
+                                 filePath = path.expand(filePath))
 
-        return(sql)
-        # pg13::send(conn = conn,
-        #            sql_statement = sql)
+        pg13::send(conn = conn,
+                   sql_statement = sql)
 
 
 
