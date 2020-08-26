@@ -37,8 +37,9 @@ addUMLS <-
                                  schema = schema,
                                  filePath = filePath)
 
-        pg13::send(conn = conn,
-                   sql_statement = sql)
+        return(sql)
+        # pg13::send(conn = conn,
+        #            sql_statement = sql)
 
 
 

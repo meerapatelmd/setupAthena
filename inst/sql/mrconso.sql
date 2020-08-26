@@ -7,7 +7,7 @@ This script has been tested in PostgreSQL 8.2.3 on Mac OS 10.4.10
 */
 
 
-DROP TABLE @schema.MRCONSO;
+DROP TABLE IF EXISTS @schema.MRCONSO;
 CREATE TABLE @schema.MRCONSO (
 	CUI	char(8) NOT NULL,
 	LAT	char(3) NOT NULL,
