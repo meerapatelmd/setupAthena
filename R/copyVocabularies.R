@@ -34,62 +34,59 @@ copyVocabularies <-
         }
 
         vocabulary_files <-
-            list.files(vocabularyPath,
-                       full.names = TRUE,
-                       pattern = "[.]csv$")
+                c("CONCEPT_ANCESTOR.csv",
+                  "CONCEPT_CLASS.csv",
+                  "CONCEPT_RELATIONSHIP.csv",
+                  "CONCEPT_SYNONYM.csv",
+                  "CONCEPT.csv",
+                  "DOMAIN.csv",
+                  "DRUG_STRENGTH.csv",
+                  "RELATIONSHIP.csv",
+                  "VOCABULARY.csv")
 
+        vocabularyPaths <- path.expand(file.path(vocabularyPath, vocabulary_files))
 
-        if (any(grepl("CONCEPT_CPT4.csv", vocabulary_files))) {
+        table_names <- tolower(cave::strip_fn(vocabularyPaths))
 
-                file.remove(grep("CONCEPT_CPT4.csv", vocabulary_files, value = TRUE))
-                vocabulary_files <-
-                    list.files(vocabularyPath,
-                               full.names = TRUE,
-                               pattern = "[.]csv$")
-
-                logFiles <-
-                list.files(vocabularyPath,
-                           full.names = TRUE,
-                           recursive = TRUE,
-                           pattern = "[.]{1}log$")
-
-                if (!length(logFiles)) {
-
-                        warning("'vocabularyPath' does not contain a log file suggesting that CPT4 has been reconstituted")
-
-                }
-        }
-
-
-        table_names <- tolower(cave::strip_fn(vocabulary_files))
-
-        totalFiles <- length(vocabulary_files)
 
         pb <- progress::progress_bar$new(clear = FALSE,
-                                         format = ":what [:bar] :elapsedfull :current/:total (:percent)", total = totalFiles)
+                                         format = ":what [:bar] :elapsedfull :current/:total (:percent)", total = length(table_names))
         pb$tick(0)
         Sys.sleep(0.2)
 
-        for (i in 1:length(vocabulary_files)) {
 
-            vocabulary_file <- vocabulary_files[i]
+        errors <- vector()
+
+        for (i in 1:length(vocabularyPaths)) {
+
+            vocabulary_file <- vocabularyPaths[i]
             table_name <- table_names[i]
             pb$tick(tokens = list(what = table_name))
             Sys.sleep(0.2)
 
             # sql <- paste0("COPY ", targetSchema, ".", table_name, " FROM '", vocabulary_file, "' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b' ;")
 
-            sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
-                                                                             FileName = "copyVocabularies.sql",
-                                                                             package = "setupAthena")),
+            sql <- SqlRender::render("COPY @schema.@tableName FROM '@vocabulary_file' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b';",
                                      schema = targetSchema,
                                      tableName = table_name,
                                      vocabulary_file = vocabulary_file)
 
+            output <-
             tryCatch(pg13::send(conn = conn,
                                 sql_statement = sql),
-                     error = function(err) secretary::typewrite_error("\n", sql, "\n"))
+                     error = function(e) "Error")
 
+            if (length(output) == 1 && output == "Error") {
+                         errors <-
+                             c(errors,
+                               table_name = sql)
+            }
+
+        }
+
+        if (length(errors)) {
+
+            warning("Some tables failed to load: ", errors)
         }
 
     }
