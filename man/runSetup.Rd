@@ -6,7 +6,7 @@
 \usage{
 runSetup(
   conn = conn,
-  targetSchema = "public",
+  targetSchema = "omop_vocabulary",
   cascade = TRUE,
   vocabularyPath,
   verbose = TRUE
