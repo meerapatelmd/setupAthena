@@ -1,5 +1,6 @@
 Package: setupAthena
-Title: Setup or Update a Postgres Instance of the Athena Vocabularies
+Title: Setup or Update a Postgres Instance of the Athena
+    Vocabularies
 Version: 0.1.0
 Authors@R: 
     person(given = "Meera",
@@ -7,32 +8,33 @@ Authors@R:
            role = c("aut", "cre"),
            email = "patelmeeray@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: This package loads the Athena Vocabularies into OMOP CDM Vocabulary Tables. 
+Description: This package loads the Athena Vocabularies
+    into OMOP CDM Vocabulary Tables. 
 License: Apache License 2.0
-Encoding: UTF-8
-LazyData: true
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
-Suggests: 
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
 Imports: 
-    R.cache,
-    SqlRender,
     cave,
     crayon,
     dplyr,
     pg13,
     progress,
+    R.cache,
     rubix,
     secretary,
+    SqlRender,
     tidyr
-Remotes:  
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: 
+    knitr
+Remotes: 
     meerapatelmd/cave,
     meerapatelmd/pg13,
     meerapatelmd/rubix,
     meerapatelmd/secretary
-    
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
