@@ -31,6 +31,8 @@ runSetup <-
                  vocabularyPath,
                  verbose = TRUE) {
 
+                .Deprecated("run_setup")
+
                 if (missing(vocabularyPath)) {
                         stop('vocabularyPath missing with no default')
                 }

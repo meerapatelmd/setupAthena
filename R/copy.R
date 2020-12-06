@@ -17,21 +17,11 @@
 
 
 
-copyVocabularies <-
-    function(vocabularyPath,
-             targetSchema,
+copy <-
+    function(path_to_csvs,
+             target_schema,
              conn) {
 
-        if (!dir.exists(vocabularyPath)) {
-
-            stop('dir "', vocabularyPath, '" does not exist.')
-
-        }
-
-        if (missing(conn)) {
-
-            stop('conn is missing with no default')
-        }
 
         vocabulary_files <-
                 c("CONCEPT_ANCESTOR.csv",
@@ -44,30 +34,29 @@ copyVocabularies <-
                   "RELATIONSHIP.csv",
                   "VOCABULARY.csv")
 
-        vocabularyPaths <- path.expand(file.path(vocabularyPath, vocabulary_files))
 
-        table_names <- tolower(cave::strip_fn(vocabularyPaths))
+        table_names <-
+            c("CONCEPT_ANCESTOR",
+              "CONCEPT_CLASS",
+              "CONCEPT_RELATIONSHIP",
+              "CONCEPT_SYNONYM",
+              "CONCEPT",
+              "DOMAIN",
+              "DRUG_STRENGTH",
+              "RELATIONSHIP",
+              "VOCABULARY")
 
-
-        pb <- progress::progress_bar$new(clear = FALSE,
-                                         format = ":what [:bar] :elapsedfull :current/:total (:percent)", total = length(table_names))
-        pb$tick(0)
-        Sys.sleep(0.2)
-
+        paths_to_csvs <- path.expand(file.path(path_to_csvs, vocabulary_files))
 
         errors <- vector()
+        for (i in seq_along(paths_to_csvs)) {
 
-        for (i in 1:length(vocabularyPaths)) {
-
-            vocabulary_file <- vocabularyPaths[i]
+            vocabulary_file <- paths_to_csvs[i]
             table_name <- table_names[i]
-            pb$tick(tokens = list(what = table_name))
-            Sys.sleep(0.2)
 
-            # sql <- paste0("COPY ", targetSchema, ".", table_name, " FROM '", vocabulary_file, "' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b' ;")
 
             sql <- SqlRender::render("COPY @schema.@tableName FROM '@vocabulary_file' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b';",
-                                     schema = targetSchema,
+                                     schema = target_schema,
                                      tableName = table_name,
                                      vocabulary_file = vocabulary_file)
 
@@ -77,16 +66,31 @@ copyVocabularies <-
                      error = function(e) "Error")
 
             if (length(output) == 1 && output == "Error") {
+
                          errors <-
-                             c(errors,
-                               table_name = sql)
+                             c(errors, table_name)
             }
 
         }
 
         if (length(errors)) {
 
-            warning("Some tables failed to load: ", errors)
+            secretary::typewrite(secretary::enbold(secretary::redTxt("WARNING:")), "The following tables failed to load:")
+            errors %>%
+                purrr::map(~ secretary::typewrite(.,
+                                                  tabs = 4,
+                                                  timepunched = FALSE))
+
+        } else {
+
+            secretary::typewrite("All tables copied successfully:")
+            table_names %>%
+                purrr::map(~ secretary::typewrite(.,
+                                                  tabs = 4,
+                                                  timepunched = FALSE))
+
+
+
         }
 
     }

@@ -1,13 +1,12 @@
 Package: setupAthena
 Title: Setup or Update a Postgres Instance of the Athena
     Vocabularies
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: 
-    person(given = "Meera",
-           family = "Patel",
-           role = c("aut", "cre"),
-           email = "patelmeeray@gmail.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Meera", "Patel, MD",
+    email = "patelmeeray@gmail.com", 
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-3401-3948"))
 Description: This package loads the Athena Vocabularies
     into OMOP CDM Vocabulary Tables. 
 License: Apache License 2.0
