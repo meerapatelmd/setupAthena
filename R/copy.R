@@ -7,7 +7,7 @@
 #'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
 #'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
 #'  \code{\link[secretary]{typewrite_error}}
-#' @rdname copyVocabularies
+#' @rdname copy
 #' @export
 #' @importFrom cave strip_fn
 #' @importFrom progress progress_bar
@@ -20,7 +20,9 @@
 copy <-
     function(path_to_csvs,
              target_schema,
-             conn) {
+             conn,
+             verbose = TRUE,
+             render_sql = TRUE) {
 
 
         vocabulary_files <-
@@ -62,10 +64,12 @@ copy <-
 
             output <-
             tryCatch(pg13::send(conn = conn,
-                                sql_statement = sql),
-                     error = function(e) "Error")
+                                sql_statement = sql,
+                                verbose = verbose,
+                                render_sql = render_sql),
+                     error = function(e) NULL)
 
-            if (length(output) == 1 && output == "Error") {
+            if (is.null(output)) {
 
                          errors <-
                              c(errors, table_name)

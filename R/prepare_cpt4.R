@@ -1,16 +1,35 @@
-
-
-
-
-
-
+#' @title
+#' Reconstitute CPT4 Concepts
+#' @description
+#' Run the java script that reconstitutes CPT4 concepts directly from the R console.
+#'
+#' @inheritParams pkg_args
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso
+#'  \code{\link[cli]{cat_line}}
+#'  \code{\link[secretary]{c("typewrite", "typewrite")}},\code{\link[secretary]{character(0)}}
+#'  \code{\link[purrr]{map}}
+#' @rdname prepare_cpt4
+#' @export
+#' @importFrom cli cat_boxx cat_line
+#' @importFrom secretary typewrite magentaTxt
+#' @importFrom purrr map
 
 
 prepare_cpt4 <-
         function(path_to_csvs,
                  umls_api_key,
-                 verbose = TRUE,
-                 render_sql = TRUE) {
+                 verbose = TRUE) {
+
+
+                        cli::cat_boxx("Reconstitute CPT4")
 
                         command <- list()
                         command[[1]] <- sprintf("cd")
@@ -24,6 +43,7 @@ prepare_cpt4 <-
                                 command %>%
                                         purrr::map(~  secretary::typewrite(.,
                                                                            tabs = 4, timepunched = FALSE))
+                                cli::cat_line()
                         }
 
 
@@ -33,5 +53,7 @@ prepare_cpt4 <-
                                 paste(collapse = "\n")
 
                         system(command = command)
+
+                        cli::cat_line()
 
         }

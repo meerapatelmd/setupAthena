@@ -1,19 +1,8 @@
 #' @title Run Full Setup
 #' @description
 #' This function runs the entire process of dropping the target schema if it exists and populating the vocabulary tables.
-#' @param conn PARAM_DESCRIPTION, Default: conn
-#' @param target_schema PARAM_DESCRIPTION, Default: 'public'
-#' @param cascade PARAM_DESCRIPTION, Default: TRUE
-#' @param path_to_csvs PARAM_DESCRIPTION
-#' @param verbose PARAM_DESCRIPTION, Default: TRUE
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' @return
+#' Updated OMOP Vocabulary (Athena) CONCEPT_ANCESTOR, CONCEPT_CLASS, CONCEPT_RELATIONSHIP, CONCEPT_SYNONYM, CONCEPT, DOMAIN, DRUG_STRENGTH, RELATIONSHIP, and VOCABULARY Tables in the given target schema.
 #' @seealso
 #'  \code{\link[secretary]{typewrite_note}},\code{\link[secretary]{press_enter}},\code{\link[secretary]{typewrite}}
 #'  \code{\link[pg13]{lsSchema}},\code{\link[pg13]{createSchema}}
@@ -28,10 +17,17 @@ run_setup <-
         function(conn,
                  conn_fun,
                  target_schema = "omop_vocabulary",
-                 cascade = TRUE,
+                 steps = c("create_schema",
+                           "copy",
+                           "indices",
+                           "constraints"),
                  path_to_csvs,
+                 umls_api_key,
                  verbose = TRUE,
                  render_sql = TRUE) {
+
+                # Check csv path
+                path_to_csvs <- normalizePath(file.path(path_to_csvs), mustWork = TRUE)
 
                 # Checking Connection
                 if (!missing(conn_fun)) {
@@ -50,22 +46,39 @@ run_setup <-
 
                 }
 
+                # Prepare CPT4
 
-                # Check csv path
+                if ("prepare_cpt4" %in% steps) {
 
-                path_to_csvs <- normalizePath(file.path(path_to_csvs), mustWork = TRUE)
+                        if (missing(umls_api_key)) {
+
+                                umls_api_key <- readline(prompt = "UMLS API Key: ")
+
+                        }
+
+                        prepare_cpt4(path_to_csvs = path_to_csvs,
+                                     umls_api_key = umls_api_key,
+                                     verbose = verbose)
+
+                }
+
+                if ("create_schema" %in% steps) {
+
+                        if (verbose) {
+
+                                cli::cat_line()
+                                cli::cat_boxx(sprintf("Create %s Schema", target_schema))
+                        }
 
 
-                secretary::typewrite("This process will take approx 30 to 45 minutes.")
-                secretary::press_enter()
-
-
-                if (tolower(target_schema) %in% tolower(pg13::lsSchema(conn = conn))) {
+                if (tolower(target_schema) %in% tolower(pg13::lsSchema(conn = conn,
+                                                                       verbose = verbose,
+                                                                       render_sql = render_sql))) {
 
 
                                 # Dropping and creating new schema
                                 if (verbose) {
-                                        secretary::typewrite("Dropping and creating new", crayon::italic(target_schema), "schema...")
+                                        secretary::typewrite(sprintf("Existing '%s' schema found. Dropping...", target_schema))
                                 }
 
                                 pg13::send(conn = conn,
@@ -73,16 +86,18 @@ run_setup <-
                                            verbose = verbose,
                                            render_sql = render_sql)
 
-                } else {
+                }
 
-                        if (verbose) {
-                                secretary::typewrite("Creating new ", crayon::italic(target_schema), " schema...")
-                        }
+                if (verbose) {
 
-                        pg13::createSchema(conn = conn,
-                                           schema = target_schema)
+                        secretary::typewrite(sprintf("Creating new '%s' schema...", target_schema))
 
                 }
+
+                pg13::createSchema(conn = conn,
+                                   schema = target_schema)
+
+
 
                 pg13::send(conn = conn,
                            sql_statement =
@@ -212,32 +227,61 @@ run_setup <-
                                         schema = target_schema
                                    ))
 
-
-                if (verbose) {
-                        secretary::typewrite("Copying vocabularies (approx 5 minutes)...", "\n")
                 }
 
-                copyVocabularies(path_to_csvs = path_to_csvs,
-                                 target_schema = target_schema,
-                                 conn = conn)
 
+                if ("copy" %in% steps) {
+
+
+                        if (verbose) {
+                                cli::cat_line()
+                                cli::cat_boxx("Copy")
+                                secretary::typewrite("Copying vocabularies (approx 5 minutes)...", "\n")
+                        }
+
+                        copy(path_to_csvs = path_to_csvs,
+                             target_schema = target_schema,
+                             conn = conn,
+                             verbose = verbose,
+                             render_sql = render_sql)
+
+                }
+
+
+                if ("indices" %in% steps) {
 
 
                 if (verbose) {
+
+                        cli::cat_line()
+                        cli::cat_boxx("Indices")
                         secretary::typewrite("Executing indexes (approx 20 minutes)...", "\n")
                 }
 
 
                 indices(conn = conn,
-                        target_schema = target_schema)
+                        target_schema = target_schema,
+                        verbose = verbose,
+                        render_sql = render_sql)
+                }
+
+
+
+                if ("constraints" %in% steps) {
 
 
                 if (verbose) {
+                        cli::cat_line()
+                        cli::cat_boxx("Constraints")
                         secretary::typewrite("Executing constraints (approx 5 minutes)", "\n")
                 }
 
                 constraints(conn = conn,
-                            target_schema = target_schema)
+                            target_schema = target_schema,
+                            verbose = verbose,
+                            render_sql = render_sql)
+
+                }
 
 
         }
