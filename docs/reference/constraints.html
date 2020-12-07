@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Execute Athena Constraints — constraints • setupAthena</title>
+<title>Add Constraints — constraints • setupAthena</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Execute Athena Constraints — constraints" />
-<meta property="og:description" content="The constraints are performed using the SQL found at OHDSI OMOP CDM Postgresl Constraints" />
+<meta property="og:title" content="Add Constraints — constraints" />
+<meta property="og:description" content="SQL can be found at https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt" />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">setupAthena</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -128,22 +131,22 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Execute Athena Constraints</h1>
+    <h1>Add Constraints</h1>
     <small class="dont-index">Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/R/constraints.R'><code>R/constraints.R</code></a></small>
     <div class="hidden name"><code>constraints.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>The constraints are performed using the SQL found at <a href='https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt'>OHDSI OMOP CDM Postgresl Constraints</a></p>
+    <p>SQL can be found at <a href='https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt'>https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt</a></p>
     </div>
 
-    <pre class="usage"><span class='fu'>constraints</span><span class='op'>(</span><span class='va'>conn</span>, <span class='va'>targetSchema</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>constraints</span><span class='op'>(</span><span class='va'>conn</span>, <span class='va'>target_schema</span>, verbose <span class='op'>=</span> <span class='cn'>TRUE</span>, render_sql <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='https://ohdsi.github.io/SqlRender/reference/render.html'>render</a></code>,<code><a href='https://ohdsi.github.io/SqlRender/reference/readSql.html'>readSql</a></code>
-<code><a href='https://meerapatelmd.github.io/pg13/reference/sourceFilePath.html'>sourceFilePath</a></code>,<code><a href='https://meerapatelmd.github.io/pg13/reference/parseSQL.html'>parseSQL</a></code>,<code><a href='https://meerapatelmd.github.io/pg13/reference/sendList.html'>sendList</a></code></p></div>
+    <div class='dont-index'><p><code><a href='https://ohdsi.github.io/SqlRender/reference/render.html'>render</a></code>
+<code><a href='https://meerapatelmd.github.io/pg13/reference/execute_n.html'>execute_n</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -156,7 +159,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Meera Patel.</p>
+  <p>Developed by Meera Patel, MD.</p>
 </div>
 
 <div class="pkgdown">

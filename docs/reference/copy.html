@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Log Table Row Counts — logRowCount • setupAthena</title>
+<title>Copy New Vocabulary to Athena — copy • setupAthena</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Log Table Row Counts — logRowCount" />
-<meta property="og:description" content="This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a &quot;setupAthena&quot; cache subdirectory using the caching functions in the R.cache package." />
+<meta property="og:title" content="Copy New Vocabulary to Athena — copy" />
+<meta property="og:description" content="This function copies a freshly downloaded and unpacked vocabulary export from Athena.
+If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download or run prepare_cpt4 from the R console. Without running this step, CPT4 will not be included in the new Concept table." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -131,25 +132,25 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Log Table Row Counts</h1>
-    <small class="dont-index">Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
-    <div class="hidden name"><code>logRowCount.Rd</code></div>
+    <h1>Copy New Vocabulary to Athena</h1>
+    <small class="dont-index">Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/R/copy.R'><code>R/copy.R</code></a></small>
+    <div class="hidden name"><code>copy.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a "setupAthena" cache subdirectory using the caching functions in the R.cache package.</p>
+    <p>This function copies a freshly downloaded and unpacked vocabulary export from <a href='athena.ohdsi.org'>Athena</a>.
+If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download or run <code><a href='prepare_cpt4.html'>prepare_cpt4</a></code> from the R console. Without running this step, CPT4 will not be included in the new Concept table.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>logRowCount</span><span class='op'>(</span><span class='va'>conn</span>, <span class='va'>targetSchema</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>copy</span><span class='op'>(</span><span class='va'>path_to_csvs</span>, <span class='va'>target_schema</span>, <span class='va'>conn</span>, verbose <span class='op'>=</span> <span class='cn'>TRUE</span>, render_sql <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='https://meerapatelmd.github.io/rubix/reference/map_names_set.html'>map_names_set</a></code>
-<code><a href='https://meerapatelmd.github.io/pg13/reference/query.html'>query</a></code>,<code><a href='https://meerapatelmd.github.io/pg13/reference/renderRowCount.html'>renderRowCount</a></code>
-<code><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind</a></code>,<code><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></code>,<code><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></code>,<code><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></code>,<code>reexports</code>
-<code><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></code>
-<code><a href='https://rdrr.io/pkg/R.cache/man/saveCache.html'>saveCache</a></code></p></div>
+    <div class='dont-index'><p><code><a href='https://ohdsi.github.io/SqlRender/reference/render.html'>render</a></code>
+<code><a href='https://meerapatelmd.github.io/pg13/reference/send.html'>send</a></code>
+<code><a href='https://rdrr.io/r/base/c.html'>c("typewrite", "typewrite")</a></code>,<code><a href='https://rdrr.io/r/base/character.html'>character(0)</a></code>
+<code><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

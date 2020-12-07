@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>OMOP CDM 5.0 Vocabulary Tables — vocabularyTableNames • setupAthena</title>
+<title>setupAthena Arguments — pkg_args • setupAthena</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="OMOP CDM 5.0 Vocabulary Tables — vocabularyTableNames" />
-<meta property="og:description" content="These are the names of the tables that comprise the OMOP Vocabulary Tables in the OMOP CDM v5.0." />
+<meta property="og:title" content="setupAthena Arguments — pkg_args" />
+<meta property="og:description" content="setupAthena Arguments" />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">setupAthena</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -128,28 +131,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>OMOP CDM 5.0 Vocabulary Tables</h1>
-    <small class="dont-index">Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/R/data.R'><code>R/data.R</code></a></small>
-    <div class="hidden name"><code>vocabularyTableNames.Rd</code></div>
+    <h1>setupAthena Arguments</h1>
+    <small class="dont-index">Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/R/pkg_args.R'><code>R/pkg_args.R</code></a></small>
+    <div class="hidden name"><code>pkg_args.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>These are the names of the tables that comprise the OMOP Vocabulary Tables in the OMOP CDM v5.0.</p>
+    <p>setupAthena Arguments</p>
     </div>
 
-    <pre class="usage"><span class='va'>vocabularyTableNames</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>umls_api_key</th>
+      <td><p>PARAM_DESCRIPTION</p></td>
+    </tr>
+    <tr>
+      <th>render_sql</th>
+      <td><p>PARAM_DESCRIPTION, Default: TRUE</p></td>
+    </tr>
+    <tr>
+      <th>conn</th>
+      <td><p>PARAM_DESCRIPTION, Default: conn</p></td>
+    </tr>
+    <tr>
+      <th>target_schema</th>
+      <td><p>PARAM_DESCRIPTION, Default: 'public'</p></td>
+    </tr>
+    <tr>
+      <th>cascade</th>
+      <td><p>PARAM_DESCRIPTION, Default: TRUE</p></td>
+    </tr>
+    <tr>
+      <th>path_to_csvs</th>
+      <td><p>PARAM_DESCRIPTION</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>PARAM_DESCRIPTION, Default: TRUE</p></td>
+    </tr>
+    <tr>
+      <th>steps</th>
+      <td><p>Options include "prepare_cpt4".</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
-
-    <p>A vector of length 11:</p><dl>
-<dt><code>vocabularyTableNames</code></dt><dd><p>character Table names</p></dd>
-
-</dl>
-
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>DETAILS</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -162,7 +190,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Meera Patel.</p>
+  <p>Developed by Meera Patel, MD.</p>
 </div>
 
 <div class="pkgdown">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Log Table Row Counts — logRowCount • setupAthena</title>
+<title>Changelog • setupAthena</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,7 @@
 
 
 
-<meta property="og:title" content="Log Table Row Counts — logRowCount" />
-<meta property="og:description" content="This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a &quot;setupAthena&quot; cache subdirectory using the caching functions in the R.cache package." />
+<meta property="og:title" content="Changelog" />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -67,7 +66,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -131,32 +130,29 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Log Table Row Counts</h1>
-    <small class="dont-index">Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
-    <div class="hidden name"><code>logRowCount.Rd</code></div>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/meerapatelmd/setupAthena/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="ref-description">
-    <p>This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a "setupAthena" cache subdirectory using the caching functions in the R.cache package.</p>
-    </div>
-
-    <pre class="usage"><span class='fu'>logRowCount</span><span class='op'>(</span><span class='va'>conn</span>, <span class='va'>targetSchema</span><span class='op'>)</span></pre>
-
-
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='https://meerapatelmd.github.io/rubix/reference/map_names_set.html'>map_names_set</a></code>
-<code><a href='https://meerapatelmd.github.io/pg13/reference/query.html'>query</a></code>,<code><a href='https://meerapatelmd.github.io/pg13/reference/renderRowCount.html'>renderRowCount</a></code>
-<code><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind</a></code>,<code><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></code>,<code><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></code>,<code><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></code>,<code>reexports</code>
-<code><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></code>
-<code><a href='https://rdrr.io/pkg/R.cache/man/saveCache.html'>saveCache</a></code></p></div>
-
+    <div id="setupathena-0-2-0" class="section level1">
+<h1 class="page-header" data-toc-text="0.2.0">
+<a href="#setupathena-0-2-0" class="anchor"></a>setupAthena 0.2.0</h1>
+<ul>
+<li>Added a <code>NEWS.md</code> file to track changes to the package.<br>
+</li>
+<li>Added <code>log</code> feature that logs updates with row counts for each table to a <code>setup_athena_log</code> table in the <code>public</code> schema.<br>
+</li>
+<li>Added a <code>steps</code> feature to <code>run_setup</code> to be able to customize the steps taken for each setup, but not the order.</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
 
 
