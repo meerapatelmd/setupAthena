@@ -1,3 +1,286 @@
+#' Clear the Current Target Schema
+#' @param conn A Connection object.
+#' @param cascade If TRUE, will drop cascade the schema.
+#' @seealso
+#'  \code{\link[secretary]{typewrite_warning}},\code{\link[secretary]{press_enter}}
+#'  \code{\link[pg13]{dropSchema}},\code{\link[pg13]{createSchema}}
+#' @rdname clearSchema
+#' @export
+#' @importFrom secretary typewrite_warning press_enter
+#' @importFrom pg13 dropSchema createSchema
+
+
+clearSchema <-
+        function(conn,
+                 targetSchema,
+                 cascade = FALSE) {
+
+
+                if (cascade) {
+                        secretary::typewrite_warning("DROP", targetSchema, "CASCADE?")
+                        secretary::press_enter()
+                }
+
+                pg13::dropSchema(conn = conn,
+                                 schema = targetSchema,
+                                 cascade = cascade)
+
+                pg13::createSchema(conn = conn,
+                                   schema = targetSchema)
+
+        }
+
+
+
+
+
+#' Copy New Vocabulary to Athena
+#' @description
+#' This function copies a freshly downloaded and unpacked vocabulary export from \href{athena.ohdsi.org}{Athena}.
+#' If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download. Otherwise, CPT4 will not be included in the new concept table. The reconstitution process is logged within the same vocabulary folder and a warning is returned in the R console if there is no evidence of a log file recursively in the same folder.
+#'  \code{\link[cave]{strip_fn}}
+#'  \code{\link[progress]{progress_bar}}
+#'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
+#'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
+#'  \code{\link[secretary]{typewrite_error}}
+#' @rdname copyVocabularies
+#' @export
+#' @importFrom cave strip_fn
+#' @importFrom progress progress_bar
+#' @importFrom SqlRender render readSql
+#' @importFrom pg13 sourceFilePath send
+#' @importFrom secretary typewrite_error
+
+
+
+copyVocabularies <-
+    function(vocabularyPath,
+             targetSchema,
+             conn) {
+
+
+        .Deprecated(new = "copy")
+
+        if (!dir.exists(vocabularyPath)) {
+
+            stop('dir "', vocabularyPath, '" does not exist.')
+
+        }
+
+        if (missing(conn)) {
+
+            stop('conn is missing with no default')
+        }
+
+        vocabulary_files <-
+                c("CONCEPT_ANCESTOR.csv",
+                  "CONCEPT_CLASS.csv",
+                  "CONCEPT_RELATIONSHIP.csv",
+                  "CONCEPT_SYNONYM.csv",
+                  "CONCEPT.csv",
+                  "DOMAIN.csv",
+                  "DRUG_STRENGTH.csv",
+                  "RELATIONSHIP.csv",
+                  "VOCABULARY.csv")
+
+        vocabularyPaths <- path.expand(file.path(vocabularyPath, vocabulary_files))
+
+        table_names <- tolower(cave::strip_fn(vocabularyPaths))
+
+
+        pb <- progress::progress_bar$new(clear = FALSE,
+                                         format = ":what [:bar] :elapsedfull :current/:total (:percent)", total = length(table_names))
+        pb$tick(0)
+        Sys.sleep(0.2)
+
+
+        errors <- vector()
+
+        for (i in 1:length(vocabularyPaths)) {
+
+            vocabulary_file <- vocabularyPaths[i]
+            table_name <- table_names[i]
+            pb$tick(tokens = list(what = table_name))
+            Sys.sleep(0.2)
+
+            # sql <- paste0("COPY ", targetSchema, ".", table_name, " FROM '", vocabulary_file, "' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b' ;")
+
+            sql <- SqlRender::render("COPY @schema.@tableName FROM '@vocabulary_file' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b';",
+                                     schema = targetSchema,
+                                     tableName = table_name,
+                                     vocabulary_file = vocabulary_file)
+
+            output <-
+            tryCatch(pg13::send(conn = conn,
+                                sql_statement = sql),
+                     error = function(e) "Error")
+
+            if (length(output) == 1 && output == "Error") {
+                         errors <-
+                             c(errors,
+                               table_name = sql)
+            }
+
+        }
+
+        if (length(errors)) {
+
+            warning("Some tables failed to load: ", errors)
+        }
+
+    }
+
+
+
+
+
+#' Execute Athena DDL
+#' @seealso
+#'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
+#'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{send}}
+#' @rdname ddl
+#' @export
+#' @importFrom SqlRender render readSql
+#' @importFrom pg13 sourceFilePath send
+
+ddl <-
+    function(conn,
+             targetSchema) {
+
+            .Deprecated()
+
+        sql <- SqlRender::render(SqlRender::readSql(pg13::sourceFilePath(instSubdir = "sql",
+                                                                         FileName = "postgresqlddl.sql",
+                                                                         package = "setupAthena")),
+                                 schema = targetSchema)
+
+        pg13::send(conn = conn,
+                   sql_statement = sql)
+
+
+    }
+
+
+
+
+
+
+#' Log Table Row Counts
+#' @description
+#' This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a "setupAthena" cache subdirectory using the caching functions in the R.cache package.
+#' @seealso
+#'  \code{\link[rubix]{map_names_set}}
+#'  \code{\link[pg13]{query}},\code{\link[pg13]{renderRowCount}}
+#'  \code{\link[dplyr]{bind}},\code{\link[dplyr]{rename}},\code{\link[dplyr]{mutate}},\code{\link[dplyr]{select}},\code{\link[dplyr]{reexports}}
+#'  \code{\link[tidyr]{pivot_wider}}
+#'  \code{\link[R.cache]{saveCache}}
+#' @rdname logRowCount
+#' @export
+#' @importFrom rubix map_names_set
+#' @importFrom pg13 query renderRowCount
+#' @importFrom dplyr bind_rows rename mutate select everything %>%
+#' @importFrom tidyr pivot_wider
+#' @importFrom R.cache saveCache
+
+
+logRowCount <-
+        function(conn,
+                 targetSchema) {
+
+                .Deprecated()
+
+                vocabularyTableNames <- c('ATTRIBUTE_DEFINITION', 'CONCEPT', 'CONCEPT_ANCESTOR', 'CONCEPT_CLASS', 'CONCEPT_RELATIONSHIP', 'CONCEPT_SYNONYM', 'DOMAIN', 'DRUG_STRENGTH', 'RELATIONSHIP', 'SOURCE_TO_CONCEPT_MAP', 'VOCABULARY')
+
+                currentRowCount <-
+                        vocabularyTableNames %>%
+                        rubix::map_names_set(function(x) pg13::query(conn = conn,
+                                                                     sql_statement = pg13::renderRowCount(schema = targetSchema,
+                                                                                                          tableName = x))) %>%
+                        dplyr::bind_rows(.id = "Table") %>%
+                        dplyr::rename(Rows = count)
+
+                cat("\n")
+                print(currentRowCount)
+                cat("\n")
+
+                historicalRowCount <- loadLog()
+
+                storeCurrentRowCount <-
+                currentRowCount %>%
+                        tidyr::pivot_wider(names_from = Table,
+                                           values_from = Rows) %>%
+                        dplyr::mutate(ROWCOUNT_DATETIME = Sys.time()) %>%
+                        dplyr::select(ROWCOUNT_DATETIME,
+                                      dplyr::everything())
+
+                output <-
+                dplyr::bind_rows(historicalRowCount,
+                                 storeCurrentRowCount)
+
+                R.cache::saveCache(object = output,
+                                   dirs = "setupAthena",
+                                   key = list("history"))
+
+        }
+
+
+
+
+
+
+
+
+
+
+#' Load Cached Log
+#' @seealso
+#'  \code{\link[R.cache]{loadCache}}
+#' @rdname loadLog
+#' @export
+#' @importFrom R.cache loadCache
+
+loadLog <-
+        function() {
+
+                R.cache::loadCache(dirs = "setupAthena",
+                                   key = list("history"))
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+#' Rename the current Athena DB
+#' @import pg13
+#' @param local_dbname Name of a local database other than Athena to connect to to execute the rename SQL statements.
+#' @export
+
+renameAthenaDB <-
+    function(local_dbname) {
+
+            new_db_name <- paste0("athena", rubix::dated(punct = TRUE))
+
+            conn <- pg13::localConnect(dbname = nonathena_dbname)
+
+            pg13::renameDB(conn = conn,
+                           db = "athena",
+                           newDB = new_db_name)
+
+            pg13::dc(conn = conn)
+
+    }
+
+
+
+
+
 #' @title Run Full Setup
 #' @description
 #' This function runs the entire process of dropping the target schema if it exists and populating the vocabulary tables.
@@ -219,3 +502,8 @@ runSetup <-
 
 
         }
+
+
+
+
+

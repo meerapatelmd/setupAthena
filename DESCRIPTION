@@ -25,7 +25,8 @@ Imports:
     rubix,
     secretary,
     SqlRender,
-    tidyr
+    tidyr,
+    magrittr
 Suggests: 
     knitr,
     rmarkdown

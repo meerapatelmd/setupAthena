@@ -1,26 +1,35 @@
-#' @title Run Full Setup
+#' @title
+#' Run Athena Setup
+#'
 #' @description
-#' This function runs the entire process of dropping the target schema if it exists and populating the vocabulary tables.
+#' Stepwise process of instantiating the Athena Vocabularies. Steps can be skipped using the `steps` argument though the order cannot be changed.
+#'
+#' @inheritParams pkg_args
 #' @return
 #' Updated OMOP Vocabulary (Athena) CONCEPT_ANCESTOR, CONCEPT_CLASS, CONCEPT_RELATIONSHIP, CONCEPT_SYNONYM, CONCEPT, DOMAIN, DRUG_STRENGTH, RELATIONSHIP, and VOCABULARY Tables in the given target schema.
 #' @seealso
-#'  \code{\link[secretary]{typewrite_note}},\code{\link[secretary]{press_enter}},\code{\link[secretary]{typewrite}}
-#'  \code{\link[pg13]{lsSchema}},\code{\link[pg13]{createSchema}}
-#'  \code{\link[crayon]{crayon}}
+#'  \code{\link[rlang]{parse_expr}}
+#'  \code{\link[pg13]{dc}},\code{\link[pg13]{is_conn_open}},\code{\link[pg13]{lsSchema}},\code{\link[pg13]{dropTable}},\code{\link[pg13]{send}}
+#'  \code{\link[cli]{cat_line}}
+#'  \code{\link[secretary]{typewrite}}
+#'  \code{\link[SqlRender]{render}}
 #' @rdname run_setup
 #' @export
-#' @importFrom secretary typewrite_note press_enter typewrite
-#' @importFrom pg13 lsSchema createSchema
-#' @importFrom crayon italic
+#' @importFrom rlang parse_expr
+#' @importFrom pg13 dc is_conn_open lsSchema dropTable send
+#' @importFrom cli cat_line cat_boxx
+#' @importFrom secretary typewrite
+#' @importFrom SqlRender render
 
 run_setup <-
         function(conn,
                  conn_fun,
                  target_schema = "omop_vocabulary",
-                 steps = c("create_schema",
+                 steps = c("drop_tables",
                            "copy",
                            "indices",
-                           "constraints"),
+                           "constraints",
+                           "log"),
                  path_to_csvs,
                  umls_api_key,
                  verbose = TRUE,
@@ -62,40 +71,48 @@ run_setup <-
 
                 }
 
-                if ("create_schema" %in% steps) {
+                if ("drop_tables" %in% steps) {
 
                         if (verbose) {
 
                                 cli::cat_line()
-                                cli::cat_boxx(sprintf("Create '%s' Schema", target_schema))
+                                cli::cat_boxx(sprintf("Drop Tables in '%s' Schema", target_schema))
                         }
 
 
-                if (tolower(target_schema) %in% tolower(pg13::lsSchema(conn = conn,
-                                                                       verbose = verbose,
-                                                                       render_sql = render_sql))) {
+                        if (tolower(target_schema) %in% tolower(pg13::lsSchema(conn = conn,
+                                                                               verbose = verbose,
+                                                                               render_sql = render_sql))) {
 
 
                                 # Dropping and creating new schema
                                 if (verbose) {
-                                        secretary::typewrite(sprintf("Existing '%s' schema found. Dropping...", target_schema))
+                                        secretary::typewrite(sprintf("Existing '%s' schema found. Dropping tables...", target_schema))
                                 }
 
-                                pg13::send(conn = conn,
-                                           SqlRender::render("DROP SCHEMA @target_schema CASCADE;", target_schema = target_schema),
-                                           verbose = verbose,
-                                           render_sql = render_sql)
+                                table_names <-
+                                        c("CONCEPT_ANCESTOR",
+                                          "CONCEPT_CLASS",
+                                          "CONCEPT_RELATIONSHIP",
+                                          "CONCEPT_SYNONYM",
+                                          "CONCEPT",
+                                          "DOMAIN",
+                                          "DRUG_STRENGTH",
+                                          "RELATIONSHIP",
+                                          "VOCABULARY")
 
-                }
+                                for (i in seq_along(table_names)) {
 
-                if (verbose) {
+                                        pg13::dropTable(conn = conn,
+                                                        schema = target_schema,
+                                                        tableName = table_names[i],
+                                                        verbose = verbose,
+                                                        render_sql = render_sql)
 
-                        secretary::typewrite(sprintf("Creating new '%s' schema...", target_schema))
+                                }
 
-                }
 
-                pg13::createSchema(conn = conn,
-                                   schema = target_schema)
+                        }
 
 
 
@@ -230,6 +247,7 @@ run_setup <-
                 }
 
 
+
                 if ("copy" %in% steps) {
 
 
@@ -254,18 +272,18 @@ run_setup <-
                 if ("indices" %in% steps) {
 
 
-                if (verbose) {
+                        if (verbose) {
 
-                        cli::cat_line()
-                        cli::cat_boxx("Indices")
-                        secretary::typewrite("Executing indexes...")
-                }
+                                cli::cat_line()
+                                cli::cat_boxx("Indices")
+                                secretary::typewrite("Executing indexes...")
+                        }
 
 
-                indices(conn = conn,
-                        target_schema = target_schema,
-                        verbose = verbose,
-                        render_sql = render_sql)
+                        indices(conn = conn,
+                                target_schema = target_schema,
+                                verbose = verbose,
+                                render_sql = render_sql)
                 }
 
 
@@ -273,18 +291,33 @@ run_setup <-
                 if ("constraints" %in% steps) {
 
 
-                if (verbose) {
-                        cli::cat_line()
-                        cli::cat_boxx("Constraints")
-                        secretary::typewrite("Executing constraints...")
+                        if (verbose) {
+                                cli::cat_line()
+                                cli::cat_boxx("Constraints")
+                                secretary::typewrite("Executing constraints...")
+                        }
+
+                        constraints(conn = conn,
+                                    target_schema = target_schema,
+                                    verbose = verbose,
+                                    render_sql = render_sql)
+
                 }
 
-                constraints(conn = conn,
+                if ("log" %in% steps) {
+
+                        if (verbose) {
+                                cli::cat_line()
+                                cli::cat_boxx("Log")
+                                secretary::typewrite("Logging...")
+                        }
+
+                        log(conn = conn,
                             target_schema = target_schema,
                             verbose = verbose,
                             render_sql = render_sql)
 
                 }
 
-
         }
+
