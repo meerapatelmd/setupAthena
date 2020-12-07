@@ -10,6 +10,6 @@ reference:
       contents:
         - prepare_cpt4
         - copy
-        - constraint
+        - constraints
         - indices
         - log
