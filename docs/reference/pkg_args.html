@@ -133,36 +133,20 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>path_to_csvs</th>
+      <td><p>Path to folder containing the unpacked vocabularies as csv files, downloaded as a zip from <a href='athena.ohdsi.org'>athena.ohdsi.org</a>.</p></td>
+    </tr>
+    <tr>
       <th>umls_api_key</th>
-      <td><p>PARAM_DESCRIPTION</p></td>
-    </tr>
-    <tr>
-      <th>render_sql</th>
-      <td><p>PARAM_DESCRIPTION, Default: TRUE</p></td>
-    </tr>
-    <tr>
-      <th>conn</th>
-      <td><p>PARAM_DESCRIPTION, Default: conn</p></td>
+      <td><p>UMLS API Key for CPT4 reconstitution.</p></td>
     </tr>
     <tr>
       <th>target_schema</th>
-      <td><p>PARAM_DESCRIPTION, Default: 'public'</p></td>
-    </tr>
-    <tr>
-      <th>cascade</th>
-      <td><p>PARAM_DESCRIPTION, Default: TRUE</p></td>
-    </tr>
-    <tr>
-      <th>path_to_csvs</th>
-      <td><p>PARAM_DESCRIPTION</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>PARAM_DESCRIPTION, Default: TRUE</p></td>
+      <td><p>Schema where the OMOP Vocabulary ('Athena') Tables will be written to.</p></td>
     </tr>
     <tr>
       <th>steps</th>
-      <td><p>Options include "prepare_cpt4".</p></td>
+      <td><p>Options include c("prepare_cpt4", "drop_tables","copy", "indices", "constraints", "log"). Each step corresponds to the function used and may be independently executed. <code><a href='prepare_cpt4.html'>prepare_cpt4</a></code> is not included in default because of its tendency to run slow and the java script used to reconstitute the CPT4 needs to run uninterrupted or else the resulting CONCEPT.csv file will be damaged. Therefore, it is advised to reconstitute CPT4 separately from the Command Line or using the aforementioned function in this package though the option to do it as part of <code><a href='run_setup.html'>run_setup</a></code> is available.</p></td>
     </tr>
     </table>
 
