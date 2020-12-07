@@ -1,6 +1,6 @@
 # setupAthena <img src="man/figures/logo.png" align="right" alt="" width="120" />  
 
-This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables.  
+This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables, also called "Athena".    
 
 
 # Installation   
@@ -11,8 +11,33 @@ install_github("patelm9/setupAthena")
 ```  
   
 # Requirements   
-1. Downloaded and unpacked vocabulary bundle from athena.ohdsi.org. If CPT4 is in the bundle, it should be reconstituted according to the readme.txt file found within the unpacked bundle.  
-1. Postgres database   
+
+1. Downloaded and unpacked vocabulary bundle from athena.ohdsi.org. If CPT4 is in the bundle, remember to reconstitute it with either the functions available in this package or from the Command Line using the README.txt that came with the vocabularies.   
+1. Postgres database    
+
+
+# Execution  
+ 
+A. After the zip file is unpacked and the CPT4 have been reconstituted:   
+
+```
+library(setupAthena) 
+run_setup(conn = conn, 
+          target_schema = "my_schema",
+          path_to_csvs = "~/Desktop/athena_vocab")
+```  
+
+B. To use the option of reconstituting CPT4 alongside the rest of the setup:  
+
+```
+library(setupAthena) 
+run_setup(conn = conn, 
+          target_schema = "my_schema",
+          path_to_csvs = "~/Desktop/athena_vocab",
+          steps = c("prepare_cpt4", "drop_tables", "copy", "indices", "constraints", "log"),)
+```  
+
+
 
 ## Code of Conduct
 

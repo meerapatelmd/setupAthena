@@ -99,7 +99,9 @@ run_setup <-
                                           "DOMAIN",
                                           "DRUG_STRENGTH",
                                           "RELATIONSHIP",
-                                          "VOCABULARY")
+                                          "SOURCE_TO_CONCEPT_MAP",
+                                          "VOCABULARY",
+                                          "ATTRIBUTE_DEFINITION")
 
                                 for (i in seq_along(table_names)) {
 
