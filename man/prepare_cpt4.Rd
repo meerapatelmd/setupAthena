@@ -10,6 +10,8 @@ prepare_cpt4(path_to_csvs, umls_api_key, verbose = TRUE)
 \item{path_to_csvs}{Path to folder containing the unpacked vocabularies as csv files, downloaded as a zip from \url{athena.ohdsi.org}.}
 
 \item{umls_api_key}{UMLS API Key for CPT4 reconstitution.}
+
+\item{verbose}{If TRUE, prints back activity in the R console as it is occurring.}
 }
 \value{
 OUTPUT_DESCRIPTION
