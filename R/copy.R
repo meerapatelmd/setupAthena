@@ -67,9 +67,9 @@ copy <-
                                 sql_statement = sql,
                                 verbose = verbose,
                                 render_sql = render_sql),
-                     error = function(e) NULL)
+                     error = function(e) "Error")
 
-            if (is.null(output)) {
+            if ((length(output) == 1) && (output %in% "Error")) {
 
                          errors <-
                              c(errors, table_name)

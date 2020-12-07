@@ -67,7 +67,7 @@ run_setup <-
                         if (verbose) {
 
                                 cli::cat_line()
-                                cli::cat_boxx(sprintf("Create %s Schema", target_schema))
+                                cli::cat_boxx(sprintf("Create '%s' Schema", target_schema))
                         }
 
 
@@ -236,8 +236,11 @@ run_setup <-
                         if (verbose) {
                                 cli::cat_line()
                                 cli::cat_boxx("Copy")
-                                secretary::typewrite("Copying vocabularies (approx 5 minutes)...", "\n")
+
+                                secretary::typewrite("Copying vocabularies...")
+
                         }
+
 
                         copy(path_to_csvs = path_to_csvs,
                              target_schema = target_schema,
@@ -255,7 +258,7 @@ run_setup <-
 
                         cli::cat_line()
                         cli::cat_boxx("Indices")
-                        secretary::typewrite("Executing indexes (approx 20 minutes)...", "\n")
+                        secretary::typewrite("Executing indexes...")
                 }
 
 
@@ -273,7 +276,7 @@ run_setup <-
                 if (verbose) {
                         cli::cat_line()
                         cli::cat_boxx("Constraints")
-                        secretary::typewrite("Executing constraints (approx 5 minutes)", "\n")
+                        secretary::typewrite("Executing constraints...")
                 }
 
                 constraints(conn = conn,
