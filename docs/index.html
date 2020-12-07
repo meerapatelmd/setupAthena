@@ -84,7 +84,7 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#setupathena" class="anchor"></a>setupAthena <img src="reference/figures/logo.png" align="right" alt="" width="120">
 </h1></div>
-<p>This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables.</p>
+<p>This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables, also called “Athena”.</p>
 </div>
 <div id="installation" class="section level1">
 <h1 class="hasAnchor">
@@ -96,10 +96,25 @@ install_github("patelm9/setupAthena")  </a></code></pre>
 <h1 class="hasAnchor">
 <a href="#requirements" class="anchor"></a>Requirements</h1>
 <ol>
-<li>Downloaded and unpacked vocabulary bundle from athena.ohdsi.org. If CPT4 is in the bundle, it should be reconstituted according to the readme.txt file found within the unpacked bundle.<br>
+<li>Downloaded and unpacked vocabulary bundle from athena.ohdsi.org. If CPT4 is in the bundle, remember to reconstitute it with either the functions available in this package or from the Command Line using the README.txt that came with the vocabularies.<br>
 </li>
 <li>Postgres database</li>
 </ol>
+</div>
+<div id="execution" class="section level1">
+<h1 class="hasAnchor">
+<a href="#execution" class="anchor"></a>Execution</h1>
+<p>A. After the zip file is unpacked and the CPT4 have been reconstituted:</p>
+<pre><code><a href="https://meerapatelmd.github.io/setupAthena/">library(setupAthena) 
+run_setup(conn = conn, 
+          target_schema = "my_schema",
+          path_to_csvs = "~/Desktop/athena_vocab")</a></code></pre>
+<p>B. To use the option of reconstituting CPT4 alongside the rest of the setup:</p>
+<pre><code><a href="https://meerapatelmd.github.io/setupAthena/">library(setupAthena) 
+run_setup(conn = conn, 
+          target_schema = "my_schema",
+          path_to_csvs = "~/Desktop/athena_vocab",
+          steps = c("prepare_cpt4", "drop_tables", "copy", "indices", "constraints", "log"),)</a></code></pre>
 <div id="code-of-conduct" class="section level2">
 <h2 class="hasAnchor">
 <a href="#code-of-conduct" class="anchor"></a>Code of Conduct</h2>
