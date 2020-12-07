@@ -16,26 +16,23 @@ BugReports: https://github.com/meerapatelmd/setupAthena/issues/
 Depends: 
     R (>= 2.10)
 Imports: 
-    cave,
-    crayon,
-    dplyr,
-    pg13,
-    progress,
-    R.cache,
-    rubix,
-    secretary,
     SqlRender,
-    tidyr,
-    magrittr
+    cli,
+    dplyr,
+    magrittr,
+    pg13,
+    purrr,
+    rlang,
+    secretary,
+    tibble,
+    tidyr
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: 
     knitr
 Remotes: 
-    meerapatelmd/cave,
     meerapatelmd/pg13,
-    meerapatelmd/rubix,
     meerapatelmd/secretary
 Encoding: UTF-8
 LazyData: true
