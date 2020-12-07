@@ -4,21 +4,13 @@
 \alias{pkg_args}
 \title{setupAthena Arguments}
 \arguments{
-\item{umls_api_key}{PARAM_DESCRIPTION}
+\item{path_to_csvs}{Path to folder containing the unpacked vocabularies as csv files, downloaded as a zip from \url{athena.ohdsi.org}.}
 
-\item{render_sql}{PARAM_DESCRIPTION, Default: TRUE}
+\item{umls_api_key}{UMLS API Key for CPT4 reconstitution.}
 
-\item{conn}{PARAM_DESCRIPTION, Default: conn}
+\item{target_schema}{Schema where the OMOP Vocabulary ('Athena') Tables will be written to.}
 
-\item{target_schema}{PARAM_DESCRIPTION, Default: 'public'}
-
-\item{cascade}{PARAM_DESCRIPTION, Default: TRUE}
-
-\item{path_to_csvs}{PARAM_DESCRIPTION}
-
-\item{verbose}{PARAM_DESCRIPTION, Default: TRUE}
-
-\item{steps}{Options include "prepare_cpt4".}
+\item{steps}{Options include c("prepare_cpt4", "drop_tables","copy", "indices", "constraints", "log"). Each step corresponds to the function used and may be independently executed. \code{\link{prepare_cpt4}} is not included in default because of its tendency to run slow and the java script used to reconstitute the CPT4 needs to run uninterrupted or else the resulting CONCEPT.csv file will be damaged. Therefore, it is advised to reconstitute CPT4 separately from the Command Line or using the aforementioned function in this package though the option to do it as part of \code{\link{run_setup}} is available.}
 }
 \description{
 setupAthena Arguments

@@ -7,11 +7,9 @@
 prepare_cpt4(path_to_csvs, umls_api_key, verbose = TRUE)
 }
 \arguments{
-\item{path_to_csvs}{PARAM_DESCRIPTION}
+\item{path_to_csvs}{Path to folder containing the unpacked vocabularies as csv files, downloaded as a zip from \url{athena.ohdsi.org}.}
 
-\item{umls_api_key}{PARAM_DESCRIPTION}
-
-\item{verbose}{PARAM_DESCRIPTION, Default: TRUE}
+\item{umls_api_key}{UMLS API Key for CPT4 reconstitution.}
 }
 \value{
 OUTPUT_DESCRIPTION
