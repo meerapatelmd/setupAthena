@@ -1,0 +1,15 @@
+reference:
+    - title: Setup Athena
+      desc: >
+        Run a complete setup of the vocabularies in a single function call.
+      contents:
+        - run_setup
+    - title: Internals
+      desc: >
+        A-la-carte functions used in the setup.
+      contents:
+        - prepare_cpt4
+        - copy
+        - constraint
+        - indices
+        - log
