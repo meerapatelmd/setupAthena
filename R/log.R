@@ -1,20 +1,30 @@
 #' Log Table Row Counts
 #' @description
 #' This function prints the number of rows for all the vocabulary tables in the R console. The results are also stored alongside a log of all previous data loads in a "setupAthena" cache subdirectory using the caching functions in the R.cache package.
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
 #' @seealso
 #'  \code{\link[purrr]{map}},\code{\link[purrr]{set_names}}
 #'  \code{\link[pg13]{query}},\code{\link[pg13]{renderRowCount}},\code{\link[pg13]{table_exists}},\code{\link[pg13]{send}},\code{\link[pg13]{appendTable}}
-#'  \code{\link[dplyr]{bind}},\code{\link[dplyr]{rename}}
+#'  \code{\link[dplyr]{bind}},\code{\link[dplyr]{rename}},\code{\link[dplyr]{mutate}},\code{\link[dplyr]{select}},\code{\link[dplyr]{reexports}}
+#'  \code{\link[cli]{cat_line}}
+#'  \code{\link[tibble]{as_tibble}}
+#'  \code{\link[tidyr]{pivot_wider}}
 #' @rdname log
 #' @export
 #' @importFrom purrr map set_names
 #' @importFrom pg13 query renderRowCount table_exists send appendTable
-#' @importFrom dplyr bind_rows rename
-
+#' @importFrom dplyr bind_rows rename mutate select everything
+#' @importFrom cli cat_line cat_boxx
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr pivot_wider
 
 log <-
         function(conn,
-                 conn_fun,
                  target_schema,
                  verbose = TRUE,
                  render_sql = TRUE) {
@@ -31,7 +41,7 @@ log <-
                           "RELATIONSHIP",
                           "VOCABULARY")
 
-                current_row_count <<-
+                current_row_count <-
                         table_names %>%
                         purrr::map(function(x) pg13::query(conn = conn,
                                                                      sql_statement = pg13::renderRowCount(schema = target_schema,

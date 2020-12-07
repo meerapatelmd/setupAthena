@@ -1,13 +1,14 @@
+#' @title
 #' Execute Athena Indexes
 #' @description
-#' SQL for indices derived from \href{"https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20pk%20indexes.txt"}{OHDSI OMOP CDM PK Indexes.txt}
+#' SQL for indices derived from \url{"https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20pk%20indexes.txt"}
 #' @seealso
-#'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
-#'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{parseSQL}},\code{\link[pg13]{sendList}}
+#'  \code{\link[SqlRender]{render}}
+#'  \code{\link[pg13]{execute_n}}
 #' @rdname indices
 #' @export
-#' @importFrom SqlRender render readSql
-#' @importFrom pg13 sourceFilePath parseSQL sendList
+#' @importFrom SqlRender render
+#' @importFrom pg13 execute_n
 
 indices <-
     function(conn,

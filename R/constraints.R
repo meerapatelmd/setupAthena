@@ -1,13 +1,16 @@
-#' Execute Athena Constraints
+#' @title
+#' Add Constraints
+#'
 #' @description
-#' The constraints are performed using the SQL found at \href{https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt}{OHDSI OMOP CDM Postgresl Constraints}
+#' SQL can be found at \url{https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20constraints.txt}
+#'
 #' @seealso
-#'  \code{\link[SqlRender]{render}},\code{\link[SqlRender]{readSql}}
-#'  \code{\link[pg13]{sourceFilePath}},\code{\link[pg13]{parseSQL}},\code{\link[pg13]{sendList}}
+#'  \code{\link[SqlRender]{render}}
+#'  \code{\link[pg13]{execute_n}}
 #' @rdname constraints
 #' @export
-#' @importFrom SqlRender render readSql
-#' @importFrom pg13 sourceFilePath parseSQL sendList
+#' @importFrom SqlRender render
+#' @importFrom pg13 execute_n
 
 constraints <-
     function(conn,
