@@ -52,7 +52,7 @@ constraints <-
                 ALTER TABLE @schema.concept_relationship ADD CONSTRAINT chk_cr_invalid_reason CHECK (COALESCE(invalid_reason,'D')='D');
                 ALTER TABLE @schema.concept_synonym ADD CONSTRAINT chk_csyn_concept_synonym_name CHECK (concept_synonym_name <> '');
                 ",
-                schema = targetSchema)
+                schema = target_schema)
 
 
             sql_statements <-
