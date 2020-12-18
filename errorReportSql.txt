@@ -1,0 +1,26 @@
+DBMS:
+postgresql
+
+Error:
+org.postgresql.util.PSQLException: ERROR: relation "concept" does not exist
+
+SQL:
+ALTER TABLE omop_vocabulary.drug_strength ADD CONSTRAINT fpk_drug_strength_unit_3 FOREIGN KEY (denominator_unit_concept_id)  REFERENCES concept (concept_id)
+
+R version:
+R version 3.6.2 (2019-12-12)
+
+Platform:
+x86_64-apple-darwin15.6.0
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- setupAthena (0.2.0)

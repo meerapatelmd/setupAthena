@@ -62,10 +62,16 @@ constraints <-
                 trimws(which = "both")
 
 
-            pg13::execute_n(conn = conn,
-                            sql_statements = sql_statements,
-                            verbose = verbose,
-                            render_sql = verbose)
+            for (i in seq_along(sql_statements)) {
+
+                    tryCatch(
+                    pg13::send(conn = conn,
+                               sql_statement = sql_statements[i],
+                               verbose = verbose,
+                               render_sql = render_sql),
+                    error = function(e) NULL)
+
+            }
 
 
     }
