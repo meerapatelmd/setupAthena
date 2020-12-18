@@ -90,32 +90,28 @@ run_setup <-
                                         secretary::typewrite(sprintf("Existing '%s' schema found. Dropping tables...", target_schema))
                                 }
 
-                                table_names <-
-                                        c("CONCEPT_ANCESTOR",
-                                          "CONCEPT_CLASS",
-                                          "CONCEPT_RELATIONSHIP",
-                                          "CONCEPT_SYNONYM",
-                                          "CONCEPT",
-                                          "DOMAIN",
-                                          "DRUG_STRENGTH",
-                                          "RELATIONSHIP",
-                                          "SOURCE_TO_CONCEPT_MAP",
-                                          "VOCABULARY",
-                                          "ATTRIBUTE_DEFINITION")
+                                pg13::dropCascade(conn = conn,
+                                                  schema = target_schema)
 
-                                for (i in seq_along(table_names)) {
+                                # Dropping and creating new schema
+                                if (verbose) {
+                                        secretary::typewrite("Tables dropped.")
+                                }
 
-                                        pg13::dropTable(conn = conn,
-                                                        schema = target_schema,
-                                                        tableName = table_names[i],
-                                                        verbose = verbose,
-                                                        render_sql = render_sql)
+                                pg13::createSchema(conn = conn,
+                                                   schema = target_schema)
 
+                                # Dropping and creating new schema
+                                if (verbose) {
+                                        secretary::typewrite(sprintf("'%s' schema created.", target_schema))
                                 }
 
 
                         }
 
+                        if (verbose) {
+                                secretary::typewrite("Creating tables...")
+                        }
 
 
                 pg13::send(conn = conn,
@@ -245,6 +241,11 @@ run_setup <-
                                         ",
                                         schema = target_schema
                                    ))
+
+                                if (verbose) {
+                                        secretary::typewrite("Tables created.")
+                                }
+
 
                 }
 
