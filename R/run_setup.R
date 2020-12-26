@@ -80,7 +80,7 @@ run_setup <-
                         }
 
 
-                        if (tolower(target_schema) %in% tolower(pg13::lsSchema(conn = conn,
+                        if (tolower(target_schema) %in% tolower(pg13::ls_schema(conn = conn,
                                                                                verbose = verbose,
                                                                                render_sql = render_sql))) {
 
@@ -98,15 +98,15 @@ run_setup <-
                                         secretary::typewrite("Tables dropped.")
                                 }
 
-                                pg13::createSchema(conn = conn,
-                                                   schema = target_schema)
 
-                                # Dropping and creating new schema
-                                if (verbose) {
-                                        secretary::typewrite(sprintf("'%s' schema created.", target_schema))
-                                }
+                        }
 
+                        pg13::create_schema(conn = conn,
+                                           schema = target_schema)
 
+                        # Dropping and creating new schema
+                        if (verbose) {
+                                secretary::typewrite(sprintf("'%s' schema created.", target_schema))
                         }
 
                         if (verbose) {

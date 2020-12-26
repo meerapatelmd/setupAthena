@@ -54,7 +54,7 @@ log <-
 
                 if (!pg13::table_exists(conn = conn,
                                        schema = "public",
-                                       tableName = "setup_athena_log")) {
+                                       table_name = "setup_athena_log")) {
 
                         pg13::send(conn = conn,
                                    sql_statement =
@@ -91,9 +91,9 @@ log <-
                                       dplyr::everything())
 
 
-                pg13::appendTable(conn = conn,
+                pg13::append_table(conn = conn,
                                   schema = "public",
-                                  tableName = "setup_athena_log",
+                                  table = "setup_athena_log",
                                   data = current_row_count,
                                   verbose = verbose,
                                   render_sql = render_sql)
