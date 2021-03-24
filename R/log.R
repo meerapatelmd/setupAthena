@@ -78,7 +78,8 @@ log <-
                 }
 
                 cli::cat_line()
-                cli::cat_boxx("Log Results")
+                cli::cat_boxx("Log Results",
+                              float = "center")
                 print(tibble::as_tibble(current_row_count))
                 cli::cat_line()
 
