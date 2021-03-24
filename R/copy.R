@@ -1,12 +1,20 @@
 #' @title
-#' Copy New Vocabulary to Athena
+#' Copy New Vocabulary
+#'
 #' @description
-#' This function copies a freshly downloaded and unpacked vocabulary export from \href{athena.ohdsi.org}{Athena}.
-#' If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download or run \code{\link{prepare_cpt4}} from the R console. Without running this step, CPT4 will not be included in the new Concept table.
+#' This function copies a freshly downloaded and unpacked
+#' vocabulary export from \href{athena.ohdsi.org}{Athena}.
+#' If CPT4 is included in the downloaded bundle and has not
+#' been reconstituted, please do so following the
+#' instructions in the README.txt that is in the unpacked
+#' vocabulary download or run \code{\link{prepare_cpt4}}
+#' from the R console. Without running this step, CPT4 will
+#' not be included in the new Concept table.
+#'
 #' @seealso
 #'  \code{\link[SqlRender]{render}}
 #'  \code{\link[pg13]{send}}
-#'  \code{\link[secretary]{c("typewrite", "typewrite")}},\code{\link[secretary]{character(0)}}
+#'  \code{\link[secretary]{typewrite}}
 #'  \code{\link[purrr]{map}}
 #' @rdname copy
 #' @export
@@ -46,7 +54,9 @@ copy <-
               "RELATIONSHIP",
               "VOCABULARY")
 
-        paths_to_csvs <- path.expand(file.path(path_to_csvs, vocabulary_files))
+        paths_to_csvs <-
+            path.expand(file.path(path_to_csvs,
+                                  vocabulary_files))
 
         errors <- vector()
         for (i in seq_along(paths_to_csvs)) {
@@ -55,7 +65,8 @@ copy <-
             table_name <- table_names[i]
 
 
-            sql <- SqlRender::render("COPY @schema.@tableName FROM '@vocabulary_file' WITH DELIMITER E'\t' CSV HEADER QUOTE E'\b';",
+            sql <- SqlRender::render("COPY @schema.@tableName FROM '@vocabulary_file' WITH
+DELIMITER E'\\t' CSV HEADER QUOTE E'\\b';",
                                      schema = target_schema,
                                      tableName = table_name,
                                      vocabulary_file = vocabulary_file)
@@ -77,7 +88,11 @@ copy <-
 
         if (length(errors)) {
 
-            secretary::typewrite(secretary::enbold(secretary::redTxt("WARNING:")), "The following tables failed to load:")
+            secretary::typewrite(
+                secretary::enbold(secretary::redTxt("WARNING:")),
+                "The following tables failed to load:"
+            )
+
             errors %>%
                 purrr::map(~ secretary::typewrite(.,
                                                   tabs = 4,
