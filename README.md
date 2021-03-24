@@ -1,46 +1,50 @@
-# setupAthena <img src="man/figures/logo.png" align="right" alt="" width="120" />  
 
-This package provides all the tools needed to build a Postgres instance of the OMOP CDM Vocabulary Tables, also called "Athena".    
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# setupAthena <img src="man/figures/logo.png" align="right" alt="" width="120" />
 
-# Installation   
+<!-- badges: start -->
 
+<!-- badges: end -->
+
+This package automates the process of preparing and loading the OMOP
+Vocabulary Tables into a Postges database.
+
+## Installation
+
+You can install the development version from
+[GitHub](https://github.com/) with:
+
+``` r
+devtools::install_github("meerapatelmd/setupAthena")
 ```
-library(devtools)  
-install_github("patelm9/setupAthena")  
-```  
-  
-# Requirements   
 
-1. Downloaded and unpacked vocabulary bundle from athena.ohdsi.org. If CPT4 is in the bundle, remember to reconstitute it with either the functions available in this package or from the Command Line using the README.txt that came with the vocabularies.   
-1. Postgres database    
+# Requirements
 
+1.  Unpacked vocabulary bundle from
+    [athena.ohdsi.org](https://athena.ohdsi.org/). If CPT4 is in the
+    bundle, remember to reconstitute it with either the `prepare_cpt4`
+    function available in this package or from the Command Line using
+    the README.txt that came with the vocabularies.  
+2.  Postgres database with superuser credentials or as a member of the
+    pg\_read\_server\_files role. This is necessary to run the sql
+    command `COPY` that loads the csvs into the tables.
 
-# Execution  
- 
-A. After the zip file is unpacked and the CPT4 have been reconstituted:   
+# Execution
 
-```
-library(setupAthena) 
-run_setup(conn = conn, 
-          target_schema = "my_schema",
-          path_to_csvs = "~/Desktop/athena_vocab")
-```  
+A. After the zip file is unpacked and the CPT4 have been reconstituted:
 
-B. To use the option of reconstituting CPT4 alongside the rest of the setup:  
+    library(setupAthena) 
+    run_setup(conn = conn, 
+              target_schema = "my_schema",
+              path_to_csvs = "~/Desktop/athena_vocab")
 
-```
-library(setupAthena) 
-run_setup(conn = conn, 
-          target_schema = "my_schema",
-          path_to_csvs = "~/Desktop/athena_vocab",
-          steps = c("prepare_cpt4", "drop_tables", "copy", "indices", "constraints", "log"),)
-```  
+B. To use the option of reconstituting CPT4 alongside the rest of the
+setup:
 
-
-
-## Code of Conduct
-
-Please note that the setupAthena project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.  
-
-
+    library(setupAthena) 
+    run_setup(conn = conn, 
+              target_schema = "my_schema",
+              path_to_csvs = "~/Desktop/athena_vocab",
+              steps = c("prepare_cpt4", "drop_tables", "copy", "indices", "constraints", "log"),
+              umls_api_key = 1000-9342-31304)
