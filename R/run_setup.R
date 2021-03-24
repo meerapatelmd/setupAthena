@@ -2,14 +2,24 @@
 #' Run Athena Setup
 #'
 #' @description
-#' Stepwise process of instantiating the Athena Vocabularies. Steps can be skipped using the `steps` argument though the order cannot be changed.
+#' Stepwise process of instantiating the Athena Vocabularies.
+#' Steps can be skipped using the `steps` argument though
+#' the order cannot be changed.
 #'
 #' @inheritParams pkg_args
 #' @return
-#' Updated OMOP Vocabulary (Athena) CONCEPT_ANCESTOR, CONCEPT_CLASS, CONCEPT_RELATIONSHIP, CONCEPT_SYNONYM, CONCEPT, DOMAIN, DRUG_STRENGTH, RELATIONSHIP, and VOCABULARY Tables in the given target schema.
+#' Updated OMOP Vocabulary (Athena) CONCEPT_ANCESTOR, C
+#' ONCEPT_CLASS, CONCEPT_RELATIONSHIP, CONCEPT_SYNONYM,
+#' CONCEPT, DOMAIN, DRUG_STRENGTH, RELATIONSHIP, and
+#' VOCABULARY Tables in the given target schema.
+#'
 #' @seealso
 #'  \code{\link[rlang]{parse_expr}}
-#'  \code{\link[pg13]{dc}},\code{\link[pg13]{is_conn_open}},\code{\link[pg13]{lsSchema}},\code{\link[pg13]{dropTable}},\code{\link[pg13]{send}}
+#'  \code{\link[pg13]{dc}},
+#'  \code{\link[pg13]{is_conn_open}},
+#'  \code{\link[pg13]{lsSchema}},
+#'  \code{\link[pg13]{dropTable}},
+#'  \code{\link[pg13]{send}}
 #'  \code{\link[cli]{cat_line}}
 #'  \code{\link[secretary]{typewrite}}
 #'  \code{\link[SqlRender]{render}}
@@ -36,7 +46,9 @@ run_setup <-
                  render_sql = TRUE) {
 
                 # Check csv path
-                path_to_csvs <- normalizePath(file.path(path_to_csvs), mustWork = TRUE)
+                path_to_csvs <-
+                        normalizePath(file.path(path_to_csvs),
+                                      mustWork = TRUE)
 
                 # Checking Connection
                 if (!missing(conn_fun)) {
@@ -76,7 +88,8 @@ run_setup <-
                         if (verbose) {
 
                                 cli::cat_line()
-                                cli::cat_boxx(sprintf("Drop Tables in '%s' Schema", target_schema))
+                                cli::cat_boxx(sprintf("Drop Tables in '%s' Schema", target_schema),
+                                              float = "center")
                         }
 
 
@@ -278,7 +291,8 @@ run_setup <-
                         if (verbose) {
 
                                 cli::cat_line()
-                                cli::cat_boxx("Indices")
+                                cli::cat_boxx("Indices",
+                                              float = "center")
                                 secretary::typewrite("Executing indexes...")
                         }
 
@@ -296,7 +310,8 @@ run_setup <-
 
                         if (verbose) {
                                 cli::cat_line()
-                                cli::cat_boxx("Constraints")
+                                cli::cat_boxx("Constraints",
+                                              float = "center")
                                 secretary::typewrite("Executing constraints...")
                         }
 
@@ -311,7 +326,8 @@ run_setup <-
 
                         if (verbose) {
                                 cli::cat_line()
-                                cli::cat_boxx("Log")
+                                cli::cat_boxx("Log",
+                                              float = "center")
                                 secretary::typewrite("Logging...")
                         }
 
