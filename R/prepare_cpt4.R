@@ -1,20 +1,20 @@
 #' @title
 #' Reconstitute CPT4 Concepts
+#'
 #' @description
-#' Run the java script that reconstitutes CPT4 concepts directly from the R console.
+#' Run the java script that reconstitutes CPT4 concepts
+#' directly from the R console. CPT4 will not be loaded
+#' into Postgres If this is not run beforehand.
+#'
 #'
 #' @inheritParams pkg_args
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' @param umls_api_key API Key given at
+#' \href{https://uts.nlm.nih.gov/uts/profile}{UMLS Licensee Profile}.
+#'
+#'
 #' @seealso
 #'  \code{\link[cli]{cat_line}}
-#'  \code{\link[secretary]{c("typewrite", "typewrite")}},\code{\link[secretary]{character(0)}}
+#'  \code{\link[secretary]{typewrite}},
 #'  \code{\link[purrr]{map}}
 #' @rdname prepare_cpt4
 #' @export
@@ -29,7 +29,8 @@ prepare_cpt4 <-
                  verbose = TRUE) {
 
 
-                        cli::cat_boxx("Reconstitute CPT4")
+                        cli::cat_boxx("Reconstitute CPT4",
+                                      float = "center")
 
                         command <- list()
                         command[[1]] <- sprintf("cd")
@@ -40,9 +41,14 @@ prepare_cpt4 <-
 
                         if (verbose) {
                                 secretary::typewrite(secretary::magentaTxt("Command:"))
-                                command %>%
+                                command[1:2] %>%
                                         purrr::map(~  secretary::typewrite(.,
                                                                            tabs = 4, timepunched = FALSE))
+                                secretary::typewrite(
+                                        "java -Dumls-apikey=umls_api_key -jar cpt4.jar 5",
+                                        tabs = 4,
+                                        timepunched = FALSE
+                                )
                                 cli::cat_line()
                         }
 
