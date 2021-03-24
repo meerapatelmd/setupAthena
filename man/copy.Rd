@@ -2,17 +2,23 @@
 % Please edit documentation in R/copy.R
 \name{copy}
 \alias{copy}
-\title{Copy New Vocabulary to Athena}
+\title{Copy New Vocabulary}
 \usage{
 copy(path_to_csvs, target_schema, conn, verbose = TRUE, render_sql = TRUE)
 }
 \description{
-This function copies a freshly downloaded and unpacked vocabulary export from \href{athena.ohdsi.org}{Athena}.
-If CPT4 is included in the downloaded bundle and has not been reconstituted, please do so following the instructions in the README.txt that is in the unpacked vocabulary download or run \code{\link{prepare_cpt4}} from the R console. Without running this step, CPT4 will not be included in the new Concept table.
+This function copies a freshly downloaded and unpacked
+vocabulary export from \href{athena.ohdsi.org}{Athena}.
+If CPT4 is included in the downloaded bundle and has not
+been reconstituted, please do so following the
+instructions in the README.txt that is in the unpacked
+vocabulary download or run \code{\link{prepare_cpt4}}
+from the R console. Without running this step, CPT4 will
+not be included in the new Concept table.
 }
 \seealso{
 \code{\link[SqlRender]{render}}
 \code{\link[pg13]{send}}
-\code{\link[secretary]{c("typewrite", "typewrite")}},\code{\link[secretary]{character(0)}}
+\code{\link[secretary]{typewrite}}
 \code{\link[purrr]{map}}
 }

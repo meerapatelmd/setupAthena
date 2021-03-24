@@ -7,30 +7,23 @@
 prepare_cpt4(path_to_csvs, umls_api_key, verbose = TRUE)
 }
 \arguments{
-\item{path_to_csvs}{Path to folder containing the unpacked vocabularies as csv files, downloaded as a zip from \url{athena.ohdsi.org}.}
+\item{path_to_csvs}{Path to folder containing the
+unpacked vocabularies as csv files, downloaded as a zip
+from \url{athena.ohdsi.org}.}
 
-\item{umls_api_key}{UMLS API Key for CPT4 reconstitution.}
+\item{umls_api_key}{API Key given at
+\href{https://uts.nlm.nih.gov/uts/profile}{UMLS Licensee Profile}.}
 
-\item{verbose}{If TRUE, prints back activity in the R console as it is occurring.}
-}
-\value{
-OUTPUT_DESCRIPTION
+\item{verbose}{If TRUE, prints back activity in the R
+console as it is occurring.}
 }
 \description{
-Run the java script that reconstitutes CPT4 concepts directly from the R console.
-}
-\details{
-DETAILS
-}
-\examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
+Run the java script that reconstitutes CPT4 concepts
+directly from the R console. CPT4 will not be loaded
+into Postgres If this is not run beforehand.
 }
 \seealso{
 \code{\link[cli]{cat_line}}
-\code{\link[secretary]{c("typewrite", "typewrite")}},\code{\link[secretary]{character(0)}}
+\code{\link[secretary]{typewrite}},
 \code{\link[purrr]{map}}
 }

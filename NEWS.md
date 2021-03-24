@@ -1,3 +1,11 @@
+# setupAthena 0.3.0
+
+* Section headers at each step execution is now center justified  
+* Disclaimer regarding required user permissions level added 
+to README and package argument descriptions.  
+* Added Code of Conduct.
+
+
 # setupAthena 0.2.0
 
 * Added a `NEWS.md` file to track changes to the package.  
