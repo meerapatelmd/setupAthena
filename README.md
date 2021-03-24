@@ -34,17 +34,28 @@ devtools::install_github("meerapatelmd/setupAthena")
 
 A. After the zip file is unpacked and the CPT4 have been reconstituted:
 
-    library(setupAthena) 
-    run_setup(conn = conn, 
-              target_schema = "my_schema",
-              path_to_csvs = "~/Desktop/athena_vocab")
+``` r
+library(setupAthena) 
+run_setup(conn = conn, 
+          target_schema = "my_schema",
+          path_to_csvs = "~/Desktop/athena_vocab")
+```
 
 B. To use the option of reconstituting CPT4 alongside the rest of the
 setup:
 
-    library(setupAthena) 
-    run_setup(conn = conn, 
-              target_schema = "my_schema",
-              path_to_csvs = "~/Desktop/athena_vocab",
-              steps = c("prepare_cpt4", "drop_tables", "copy", "indices", "constraints", "log"),
-              umls_api_key = 1000-9342-31304)
+``` r
+library(setupAthena) 
+run_setup(conn = conn, 
+          target_schema = "my_schema",
+          path_to_csvs = "~/Desktop/athena_vocab",
+          steps = c("prepare_cpt4", "drop_tables", "copy", "indices", "constraints", "log"),
+          umls_api_key = 1000-9342-31304)
+```
+
+## Code of Conduct
+
+Please note that the setupAthena project is released with a [Contributor
+Code of
+Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
