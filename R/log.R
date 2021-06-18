@@ -83,24 +83,25 @@ log <-
                                         schema = "public",
                                         table_name = "setup_athena_log")) {
 
-                old_log <-
-                        pg13::read_table(conn = conn,
+
+                        old_log <-
+                                pg13::read_table(conn = conn,
+                                                 schema = "public",
+                                                 table = "setup_athena_log",
+                                                 verbose = verbose,
+                                                 render_sql = render_sql)
+
+
+                        new_log <-
+                                dplyr::bind_rows(old_log,
+                                                 new_log_entry)
+
+
+                        pg13::drop_table(conn = conn,
                                          schema = "public",
                                          table = "setup_athena_log",
                                          verbose = verbose,
                                          render_sql = render_sql)
-
-
-                new_log <-
-                        dplyr::bind_rows(old_log,
-                                         new_log_entry)
-
-
-                pg13::drop_table(conn = conn,
-                                 schema = "public",
-                                 table = "setup_athena_log",
-                                 verbose = verbose,
-                                 render_sql = render_sql)
 
                 } else {
                         new_log <- new_log_entry
