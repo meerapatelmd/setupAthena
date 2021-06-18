@@ -82,7 +82,7 @@ the order cannot be changed." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">setupAthena</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -138,6 +138,7 @@ the order cannot be changed.</p>
   target_schema <span class='op'>=</span> <span class='st'>"omop_vocabulary"</span>,
   steps <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"drop_tables"</span>, <span class='st'>"copy"</span>, <span class='st'>"indices"</span>, <span class='st'>"constraints"</span>, <span class='st'>"log"</span><span class='op'>)</span>,
   <span class='va'>path_to_csvs</span>,
+  <span class='va'>release_version</span>,
   <span class='va'>umls_api_key</span>,
   verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
   render_sql <span class='op'>=</span> <span class='cn'>TRUE</span>
@@ -185,6 +186,11 @@ available.</p></td>
       <td><p>Path to folder containing the
 unpacked vocabularies as csv files, downloaded as a zip
 from <a href='athena.ohdsi.org'>athena.ohdsi.org</a>.</p></td>
+    </tr>
+    <tr>
+      <th>release_version</th>
+      <td><p>Release version as an exact string
+provided vocabulary download link delivery via email.</p></td>
     </tr>
     <tr>
       <th>umls_api_key</th>
