@@ -76,7 +76,8 @@ log <-
                         dplyr::select(sa_datetime,
                                       sa_release_version,
                                       sa_schema,
-                                      dplyr::everything())
+                                      dplyr::everything()) %>%
+                        dplyr::rename_all(tolower)
 
 
                 if (pg13::table_exists(conn = conn,
