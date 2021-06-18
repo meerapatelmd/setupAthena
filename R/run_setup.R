@@ -13,20 +13,9 @@
 #' CONCEPT, DOMAIN, DRUG_STRENGTH, RELATIONSHIP, and
 #' VOCABULARY Tables in the given target schema.
 #'
-#' @seealso
-#'  \code{\link[rlang]{parse_expr}}
-#'  \code{\link[pg13]{dc}},
-#'  \code{\link[pg13]{is_conn_open}},
-#'  \code{\link[pg13]{lsSchema}},
-#'  \code{\link[pg13]{dropTable}},
-#'  \code{\link[pg13]{send}}
-#'  \code{\link[cli]{cat_line}}
-#'  \code{\link[secretary]{typewrite}}
-#'  \code{\link[SqlRender]{render}}
 #' @rdname run_setup
 #' @export
 #' @importFrom rlang parse_expr
-#' @importFrom pg13 dc is_conn_open lsSchema dropTable send
 #' @importFrom cli cat_line cat_boxx
 #' @importFrom secretary typewrite
 #' @importFrom SqlRender render
@@ -87,7 +76,7 @@ run_setup <-
 
                         prepare_cpt4(path_to_csvs = path_to_csvs,
                                      umls_api_key = umls_api_key,
-                                     verbose = verbose)
+                                     verbose      = verbose)
 
                 }
 
@@ -96,7 +85,7 @@ run_setup <-
                         if (verbose) {
 
                                 cli::cat_line()
-                                cli::cat_boxx(sprintf("Drop Tables in '%s' Schema", target_schema),
+                                cli::cat_boxx("Drop Tables",
                                               float = "center")
                         }
 
@@ -111,7 +100,7 @@ run_setup <-
                                         secretary::typewrite(sprintf("Existing '%s' schema found. Dropping tables...", target_schema))
                                 }
 
-                                pg13::dropCascade(conn = conn,
+                                pg13::drop_cascade(conn = conn,
                                                   schema = target_schema)
 
                                 # Dropping and creating new schema
@@ -277,9 +266,10 @@ run_setup <-
 
                         if (verbose) {
                                 cli::cat_line()
-                                cli::cat_boxx("Copy")
+                                cli::cat_boxx("Copy",
+                                              float = "center")
 
-                                secretary::typewrite("Copying vocabularies...")
+                                secretary::typewrite("Copying...")
 
                         }
 

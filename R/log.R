@@ -59,11 +59,20 @@ log <-
                         dplyr::rename(Rows = count)
 
 
+                vocabulary_ids <-
+                        pg13::query(conn = conn,
+                                    sql_statement = SqlRender::render(
+                                            "WITH c AS (SELECT DISTINCT vocabulary_id FROM @schema.CONCEPT) SELECT v.* FROM @schema.VOCABULARY INNER JOIN c ON v.vocabulary_id = c.vocabulary_id ORDER BY v.vocabulary_id;", schema = target_schema)
+                                    )
+
+
                 cli::cat_line()
                 cli::cat_boxx("Log Results",
                               float = "center")
+
                 print(tibble::as_tibble(current_row_count))
                 cli::cat_line()
+                print(tibble::as_tibble(vocabulary_ids))
 
 
                 new_log_entry <-

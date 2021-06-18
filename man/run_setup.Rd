@@ -69,14 +69,3 @@ Stepwise process of instantiating the Athena Vocabularies.
 Steps can be skipped using the \code{steps} argument though
 the order cannot be changed.
 }
-\seealso{
-\code{\link[rlang]{parse_expr}}
-\code{\link[pg13]{dc}},
-\code{\link[pg13]{is_conn_open}},
-\code{\link[pg13]{lsSchema}},
-\code{\link[pg13]{dropTable}},
-\code{\link[pg13]{send}}
-\code{\link[cli]{cat_line}}
-\code{\link[secretary]{typewrite}}
-\code{\link[SqlRender]{render}}
-}
