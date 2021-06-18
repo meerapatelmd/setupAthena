@@ -4,14 +4,11 @@
 \alias{log}
 \title{Log Update}
 \usage{
-log(conn, target_schema, verbose = TRUE, render_sql = TRUE)
+log(conn, target_schema, verbose = TRUE, render_sql = TRUE, release_version)
 }
 \description{
 This function prints the number of rows for all the
-vocabulary tables in the R console. The results are also
-stored alongside a log of all previous data loads in a
-"setupAthena" cache subdirectory using the caching
-functions in the `R.cache`` package.
+vocabulary tables in the R console.
 }
 \seealso{
 \code{\link[purrr]{map}},

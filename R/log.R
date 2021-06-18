@@ -3,10 +3,7 @@
 #'
 #' @description
 #' This function prints the number of rows for all the
-#' vocabulary tables in the R console. The results are also
-#' stored alongside a log of all previous data loads in a
-#' "setupAthena" cache subdirectory using the caching
-#' functions in the `R.cache`` package.
+#' vocabulary tables in the R console.
 #'
 #' @seealso
 #'  \code{\link[purrr]{map}},
@@ -37,7 +34,8 @@ log <-
         function(conn,
                  target_schema,
                  verbose = TRUE,
-                 render_sql = TRUE) {
+                 render_sql = TRUE,
+                 release_version) {
 
 
                 table_names <-
@@ -71,6 +69,8 @@ log <-
                                            "
                                            CREATE TABLE public.setup_athena_log (
                                                 sa_datetime TIMESTAMP without TIME ZONE,
+                                                sa_release_version varchar(25),
+                                                sa_schema varchar(25),
                                                 CONCEPT_ANCESTOR BIGINT,
                                                 CONCEPT_CLASS BIGINT,
                                                 CONCEPT_RELATIONSHIP BIGINT,
@@ -93,19 +93,42 @@ log <-
                 print(tibble::as_tibble(current_row_count))
                 cli::cat_line()
 
-                current_row_count <-
+                new_log_entry <-
                         current_row_count %>%
                         tidyr::pivot_wider(names_from = "Table",
                                            values_from = "Rows") %>%
                         dplyr::mutate(sa_datetime = Sys.time()) %>%
+                        dplyr::mutate(sa_release_version = release_version) %>%
+                        dplyr::mutate(sa_schema = target_schema) %>%
                         dplyr::select(sa_datetime,
+                                      sa_release_version,
+                                      sa_schema,
                                       dplyr::everything())
 
 
-                pg13::append_table(conn = conn,
+                old_log <-
+                        pg13::read_table(conn = conn,
+                                         schema = "public",
+                                         table = "setup_athena_log",
+                                         verbose = verbose,
+                                         render_sql = render_sql)
+
+
+                new_log <-
+                        dplyr::bind_rows(old_log,
+                                         new_log_entry)
+
+
+                pg13::drop_table(conn = conn,
+                                 schema = "public",
+                                 table = "setup_athena_log",
+                                 verbose = verbose,
+                                 render_sql = render_sql)
+
+                pg13::write_table(conn = conn,
                                   schema = "public",
                                   table = "setup_athena_log",
-                                  data = current_row_count,
+                                  data =    new_log,
                                   verbose = verbose,
                                   render_sql = render_sql)
 

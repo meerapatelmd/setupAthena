@@ -1,3 +1,11 @@
+# setupAthena 0.4.0 (2021-06-18)  
+ 
+* Added `sa_release_version` and `sa_schema` field to log  
+* Changed logging to a complete rewrite from an append to preserve 
+existing log data.  
+* Updated documentation on new `release_version` argument  
+
+
 # setupAthena 0.3.0
 
 * Section headers at each step execution is now center justified  

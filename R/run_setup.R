@@ -41,6 +41,7 @@ run_setup <-
                            "constraints",
                            "log"),
                  path_to_csvs,
+                 release_version,
                  umls_api_key,
                  verbose = TRUE,
                  render_sql = TRUE) {
@@ -49,6 +50,14 @@ run_setup <-
                 path_to_csvs <-
                         normalizePath(file.path(path_to_csvs),
                                       mustWork = TRUE)
+
+                # If log is a step, release_version must be present
+                if ("log" %in% steps) {
+                        if (missing(release_version)) {
+                                stop("`release_version` required",
+                                     call. = FALSE)
+                        }
+                }
 
                 # Checking Connection
                 if (!missing(conn_fun)) {
@@ -68,7 +77,6 @@ run_setup <-
                 }
 
                 # Prepare CPT4
-
                 if ("prepare_cpt4" %in% steps) {
 
                         if (missing(umls_api_key)) {
@@ -333,6 +341,7 @@ run_setup <-
 
                         log(conn = conn,
                             target_schema = target_schema,
+                            release_version = release_version,
                             verbose = verbose,
                             render_sql = render_sql)
 

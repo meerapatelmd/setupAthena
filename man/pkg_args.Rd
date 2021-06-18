@@ -41,6 +41,9 @@ reconstitute CPT4 separately from the Command Line or
 using the aforementioned function in this package though
 the option to do it as part of \code{\link{run_setup}} is
 available.}
+
+\item{release_version}{Release version as an exact string
+provided vocabulary download link delivery via email.}
 }
 \description{
 setupAthena Arguments

@@ -10,6 +10,7 @@ run_setup(
   target_schema = "omop_vocabulary",
   steps = c("drop_tables", "copy", "indices", "constraints", "log"),
   path_to_csvs,
+  release_version,
   umls_api_key,
   verbose = TRUE,
   render_sql = TRUE
@@ -45,6 +46,9 @@ available.}
 \item{path_to_csvs}{Path to folder containing the
 unpacked vocabularies as csv files, downloaded as a zip
 from \url{athena.ohdsi.org}.}
+
+\item{release_version}{Release version as an exact string
+provided vocabulary download link delivery via email.}
 
 \item{umls_api_key}{UMLS API Key for CPT4 reconstitution.}
 
