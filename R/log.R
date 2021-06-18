@@ -59,39 +59,12 @@ log <-
                         dplyr::rename(Rows = count)
 
 
-
-                if (!pg13::table_exists(conn = conn,
-                                       schema = "public",
-                                       table_name = "setup_athena_log")) {
-
-                        pg13::send(conn = conn,
-                                   sql_statement =
-                                           "
-                                           CREATE TABLE public.setup_athena_log (
-                                                sa_datetime TIMESTAMP without TIME ZONE,
-                                                sa_release_version varchar(25),
-                                                sa_schema varchar(25),
-                                                CONCEPT_ANCESTOR BIGINT,
-                                                CONCEPT_CLASS BIGINT,
-                                                CONCEPT_RELATIONSHIP BIGINT,
-                                                CONCEPT_SYNONYM BIGINT,
-                                                CONCEPT BIGINT,
-                                                DOMAIN BIGINT,
-                                                DRUG_STRENGTH BIGINT,
-                                                RELATIONSHIP BIGINT,
-                                                VOCABULARY BIGINT
-                                           )
-                                                ",
-                                   verbose = verbose,
-                                   render_sql = render_sql)
-
-                }
-
                 cli::cat_line()
                 cli::cat_boxx("Log Results",
                               float = "center")
                 print(tibble::as_tibble(current_row_count))
                 cli::cat_line()
+
 
                 new_log_entry <-
                         current_row_count %>%
@@ -105,6 +78,10 @@ log <-
                                       sa_schema,
                                       dplyr::everything())
 
+
+                if (pg13::table_exists(conn = conn,
+                                        schema = "public",
+                                        table_name = "setup_athena_log")) {
 
                 old_log <-
                         pg13::read_table(conn = conn,
@@ -124,6 +101,10 @@ log <-
                                  table = "setup_athena_log",
                                  verbose = verbose,
                                  render_sql = render_sql)
+
+                } else {
+                        new_log <- new_log_entry
+                }
 
                 pg13::write_table(conn = conn,
                                   schema = "public",
