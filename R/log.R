@@ -68,7 +68,7 @@ log <-
                                               ) 
                                              
                                              SELECT v.* 
-                                             FROM @schema.VOCABULARY 
+                                             FROM @schema.VOCABULARY v
                                              INNER JOIN c 
                                              ON v.vocabulary_id = c.vocabulary_id 
                                              ORDER BY v.vocabulary_id;", 
