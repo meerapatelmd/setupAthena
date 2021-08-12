@@ -13,3 +13,8 @@ reference:
         - constraints
         - indices
         - log
+    - title: Fetching
+      desc: >
+        Retrieve version details from the log table.
+      contents:
+        - starts_with('fetch_')
