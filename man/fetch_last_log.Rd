@@ -4,7 +4,7 @@
 \alias{fetch_last_log}
 \title{FUNCTION_TITLE}
 \usage{
-fetch_last_log(conn, conn_fun)
+fetch_last_log(conn, conn_fun, verbose = FALSE, render_sql = FALSE)
 }
 \arguments{
 \item{conn}{PARAM_DESCRIPTION}

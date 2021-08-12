@@ -4,7 +4,7 @@
 \alias{fetch_omop_release_version}
 \title{FUNCTION_TITLE}
 \usage{
-fetch_omop_release_version(conn, conn_fun)
+fetch_omop_release_version(conn, conn_fun, verbose = FALSE, render_sql = FALSE)
 }
 \arguments{
 \item{conn}{PARAM_DESCRIPTION}

@@ -4,7 +4,13 @@
 \alias{fetch_vocabulary_id_version}
 \title{FUNCTION_TITLE}
 \usage{
-fetch_vocabulary_id_version(vocabulary_id, conn, conn_fun)
+fetch_vocabulary_id_version(
+  vocabulary_id,
+  conn,
+  conn_fun,
+  verbose = FALSE,
+  render_sql = FALSE
+)
 }
 \arguments{
 \item{vocabulary_id}{PARAM_DESCRIPTION}

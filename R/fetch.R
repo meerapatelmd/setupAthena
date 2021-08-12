@@ -10,7 +10,9 @@
 #' @importFrom pg13 dc query
 fetch_last_log <-
         function(conn,
-                 conn_fun) {
+                 conn_fun,
+                 verbose = FALSE,
+                 render_sql = FALSE) {
 
 
                 # Checking Connection
@@ -49,7 +51,9 @@ fetch_last_log <-
 #' @importFrom pg13 dc
 fetch_omop_release_version <-
         function(conn,
-                 conn_fun) {
+                 conn_fun,
+                 verbose = FALSE,
+                 render_sql = FALSE) {
 
 
                 # Checking Connection
@@ -86,7 +90,9 @@ fetch_omop_release_version <-
 fetch_vocabulary_id_version <-
         function(vocabulary_id,
                  conn,
-                 conn_fun) {
+                 conn_fun,
+                 verbose = FALSE,
+                 render_sql = FALSE) {
 
 
                 # Checking Connection
