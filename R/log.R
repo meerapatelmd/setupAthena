@@ -62,7 +62,17 @@ log <-
                 vocabulary_ids <-
                         pg13::query(conn = conn,
                                     sql_statement = SqlRender::render(
-                                            "WITH c AS (SELECT DISTINCT vocabulary_id FROM @schema.CONCEPT) SELECT v.* FROM @schema.VOCABULARY v INNER JOIN c ON v.vocabulary_id = c.vocabulary_id ORDER BY v.vocabulary_id;", schema = target_schema)
+                                            "WITH c AS (
+                                               SELECT DISTINCT vocabulary_id
+                                               FROM @schema.CONCEPT
+                                              )
+
+                                             SELECT v.*
+                                             FROM @schema.VOCABULARY v
+                                             INNER JOIN c
+                                             ON v.vocabulary_id = c.vocabulary_id
+                                             ORDER BY v.vocabulary_id;",
+                                               schema = target_schema)
                                     )
 
 
