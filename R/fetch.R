@@ -1,3 +1,22 @@
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param conn PARAM_DESCRIPTION
+#' @param conn_fun PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[rlang]{parse_expr}}
+#'  \code{\link[pg13]{dc}},\code{\link[pg13]{c("query", "query")}}
+#' @rdname fetch_last_log
+#' @export 
+#' @importFrom rlang parse_expr
+#' @importFrom pg13 dc query
 fetch_last_log <-
         function(conn,
                  conn_fun) {
@@ -27,6 +46,25 @@ fetch_last_log <-
 
 
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param conn PARAM_DESCRIPTION
+#' @param conn_fun PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[rlang]{parse_expr}}
+#'  \code{\link[pg13]{dc}}
+#' @rdname fetch_omop_release_version
+#' @export 
+#' @importFrom rlang parse_expr
+#' @importFrom pg13 dc
 fetch_omop_release_version <-
         function(conn,
                  conn_fun) {
@@ -50,6 +88,30 @@ fetch_omop_release_version <-
 
 
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param vocabulary_id PARAM_DESCRIPTION
+#' @param conn PARAM_DESCRIPTION
+#' @param conn_fun PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[rlang]{parse_expr}}
+#'  \code{\link[pg13]{dc}}
+#'  \code{\link[stringr]{str_replace}}
+#'  \code{\link[glue]{glue}}
+#' @rdname fetch_vocabulary_id_version
+#' @export 
+#' @importFrom rlang parse_expr
+#' @importFrom pg13 dc
+#' @importFrom stringr str_replace_all
+#' @importFrom glue glue
 fetch_vocabulary_id_version <-
         function(vocabulary_id,
                  conn,
