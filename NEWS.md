@@ -1,7 +1,8 @@
 # setupAthena 0.5.0 (2021-08-12)  
 
 * New `fetch_*` functions that retrieves version information 
-at the entire vocabulary and vocabulary_id level  
+at the entire vocabulary and vocabulary_id level to a 
+`setupAthenaLog` class object  
 * Added `vocabulary_version` to log  
 * Added improved console messaging, including processing 
 time to `indices()`  
