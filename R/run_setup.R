@@ -21,128 +21,126 @@
 #' @importFrom SqlRender render
 
 run_setup <-
-        function(conn,
-                 conn_fun,
-                 target_schema = "omop_vocabulary",
-                 steps = c("drop_tables",
-                           "copy",
-                           "indices",
-                           "constraints",
-                           "log"),
-                 path_to_csvs,
-                 release_version,
-                 umls_api_key,
-                 verbose = TRUE,
-                 render_sql = TRUE) {
+  function(conn,
+           conn_fun,
+           target_schema = "omop_vocabulary",
+           steps = c(
+             "drop_tables",
+             "copy",
+             "indices",
+             "constraints",
+             "log"
+           ),
+           path_to_csvs,
+           release_version,
+           umls_api_key,
+           verbose = TRUE,
+           render_sql = TRUE) {
+    if (any(c("drop_tables", "copy") %in% steps)) {
+      if (missing(path_to_csvs)) {
+        stop("`path_to_csvs` required before dropping or for copying.",
+          call. = FALSE
+        )
+      }
+    }
 
-                if (any(c("drop_tables","copy") %in% steps)) {
+    # Check csv path
+    path_to_csvs <-
+      normalizePath(file.path(path_to_csvs),
+        mustWork = TRUE
+      )
 
-                        if (missing(path_to_csvs)) {
+    # Prepare CPT4
+    if ("prepare_cpt4" %in% steps) {
+      if (missing(umls_api_key)) {
+        umls_api_key <- readline(prompt = "UMLS API Key: ")
+      }
 
-                                stop("`path_to_csvs` required before dropping or for copying.",
-                                     call. = FALSE)
+      prepare_cpt4(
+        path_to_csvs = path_to_csvs,
+        umls_api_key = umls_api_key,
+        verbose = verbose
+      )
+    } else {
+      if (!("logs" %in% list.files(path_to_csvs))) {
+        readline("No record of CPT4 processing found in `path_to_csvs`. Continue? ")
+      }
+    }
 
-                        }
+    # If log is a step, release_version must be present
+    if ("log" %in% steps) {
+      if (missing(release_version)) {
+        stop("`release_version` required",
+          call. = FALSE
+        )
+      }
+    }
 
-                }
-
-                # Check csv path
-                path_to_csvs <-
-                        normalizePath(file.path(path_to_csvs),
-                                      mustWork = TRUE)
-
-                # Prepare CPT4
-                if ("prepare_cpt4" %in% steps) {
-
-                        if (missing(umls_api_key)) {
-
-                                umls_api_key <- readline(prompt = "UMLS API Key: ")
-
-                        }
-
-                        prepare_cpt4(path_to_csvs = path_to_csvs,
-                                     umls_api_key = umls_api_key,
-                                     verbose      = verbose)
-
-                } else {
-
-                      if (!("logs" %in% list.files(path_to_csvs))) {
-
-                              readline("No record of CPT4 processing found in `path_to_csvs`. Continue? ")
-
-                      }
-
-
-                }
-
-                # If log is a step, release_version must be present
-                if ("log" %in% steps) {
-                        if (missing(release_version)) {
-                                stop("`release_version` required",
-                                     call. = FALSE)
-                        }
-                }
-
-                # Checking Connection
-                if (!missing(conn_fun)) {
-
-                        conn <- eval(rlang::parse_expr(conn_fun))
-                        on.exit(pg13::dc(conn = conn,
-                                         verbose = verbose),
-                                add = TRUE,
-                                after = TRUE)
-
-                }
+    # Checking Connection
+    if (!missing(conn_fun)) {
+      conn <- eval(rlang::parse_expr(conn_fun))
+      on.exit(pg13::dc(
+        conn = conn,
+        verbose = verbose
+      ),
+      add = TRUE,
+      after = TRUE
+      )
+    }
 
 
-                if ("drop_tables" %in% steps) {
-
-                        if (verbose) {
-
-                                cli::cat_line()
-                                cli::cat_boxx("Drop Tables",
-                                              float = "center")
-                        }
-
-
-                        if (tolower(target_schema) %in% tolower(pg13::ls_schema(conn = conn,
-                                                                               verbose = verbose,
-                                                                               render_sql = render_sql))) {
+    if ("drop_tables" %in% steps) {
+      if (verbose) {
+        cli::cat_line()
+        cli::cat_boxx("Drop Tables",
+          float = "center"
+        )
+      }
 
 
-                                # Dropping and creating new schema
-                                if (verbose) {
-                                        secretary::typewrite(sprintf("Existing '%s' schema found. Dropping tables...", target_schema))
-                                }
-
-                                pg13::drop_cascade(conn = conn,
-                                                  schema = target_schema)
-
-                                # Dropping and creating new schema
-                                if (verbose) {
-                                        secretary::typewrite("Tables dropped.")
-                                }
+      if (tolower(target_schema) %in% tolower(pg13::ls_schema(
+        conn = conn,
+        verbose = verbose,
+        render_sql = render_sql
+      ))) {
 
 
-                        }
+        # Dropping and creating new schema
+        if (verbose) {
+          secretary::typewrite(sprintf("Existing '%s' schema found. Dropping tables...", target_schema))
+        }
 
-                        pg13::create_schema(conn = conn,
-                                           schema = target_schema)
+        pg13::drop_cascade(
+          conn = conn,
+          schema = target_schema
+        )
 
-                        # Dropping and creating new schema
-                        if (verbose) {
-                                secretary::typewrite(sprintf("'%s' schema created.", target_schema))
-                        }
+        # Dropping and creating new schema
+        if (verbose) {
+          secretary::typewrite("Tables dropped.")
+        }
+      }
 
-                        if (verbose) {
-                                secretary::typewrite("Creating tables...")
-                        }
+      pg13::create_schema(
+        conn = conn,
+        schema = target_schema
+      )
+
+      # Dropping and creating new schema
+      if (verbose) {
+        secretary::typewrite(sprintf("'%s' schema created.", target_schema))
+      }
+
+      if (verbose) {
+        secretary::typewrite("Creating tables...")
+      }
 
 
-                pg13::send(conn = conn,
-                           sql_statement =
-                                   SqlRender::render(
-                                        "
+      pg13::send(
+        conn = conn,
+        sql_statement =
+          SqlRender::render(
+            "
                                         --HINT DISTRIBUTE ON RANDOM
                                         CREATE TABLE @schema.concept (
                                           concept_id			INTEGER			NOT NULL ,
@@ -264,93 +262,90 @@ run_setup <-
                                         )
                                         ;
                                         ",
-                                        schema = target_schema
-                                   ))
+            schema = target_schema
+          )
+      )
 
-                                if (verbose) {
-                                        secretary::typewrite("Tables created.")
-                                }
-
-
-                }
-
-
-
-                if ("copy" %in% steps) {
-
-
-                        if (verbose) {
-                                cli::cat_line()
-                                cli::cat_boxx("Copy",
-                                              float = "center")
-
-                                secretary::typewrite("Copying...")
-
-                        }
-
-
-                        copy(path_to_csvs = path_to_csvs,
-                             target_schema = target_schema,
-                             conn = conn,
-                             verbose = verbose,
-                             render_sql = render_sql)
-
-                }
-
-
-                if ("indices" %in% steps) {
-
-
-                        if (verbose) {
-
-                                cli::cat_line()
-                                cli::cat_boxx("Indices",
-                                              float = "center")
-                                secretary::typewrite("Executing indexes...")
-                        }
-
-
-                        indices(conn = conn,
-                                target_schema = target_schema,
-                                verbose = verbose,
-                                render_sql = render_sql)
-                }
+      if (verbose) {
+        secretary::typewrite("Tables created.")
+      }
+    }
 
 
 
-                if ("constraints" %in% steps) {
+    if ("copy" %in% steps) {
+      if (verbose) {
+        cli::cat_line()
+        cli::cat_boxx("Copy",
+          float = "center"
+        )
+
+        secretary::typewrite("Copying...")
+      }
 
 
-                        if (verbose) {
-                                cli::cat_line()
-                                cli::cat_boxx("Constraints",
-                                              float = "center")
-                                secretary::typewrite("Executing constraints...")
-                        }
+      copy(
+        path_to_csvs = path_to_csvs,
+        target_schema = target_schema,
+        conn = conn,
+        verbose = verbose,
+        render_sql = render_sql
+      )
+    }
 
-                        constraints(conn = conn,
-                                    target_schema = target_schema,
-                                    verbose = verbose,
-                                    render_sql = render_sql)
 
-                }
+    if ("indices" %in% steps) {
+      if (verbose) {
+        cli::cat_line()
+        cli::cat_boxx("Indices",
+          float = "center"
+        )
+        secretary::typewrite("Executing indexes...")
+      }
 
-                if ("log" %in% steps) {
 
-                        if (verbose) {
-                                cli::cat_line()
-                                cli::cat_boxx("Log",
-                                              float = "center")
-                                secretary::typewrite("Logging...")
-                        }
+      indices(
+        conn = conn,
+        target_schema = target_schema,
+        verbose = verbose,
+        render_sql = render_sql
+      )
+    }
 
-                        log(conn = conn,
-                            target_schema = target_schema,
-                            release_version = release_version,
-                            verbose = verbose,
-                            render_sql = render_sql)
 
-                }
 
-        }
+    if ("constraints" %in% steps) {
+      if (verbose) {
+        cli::cat_line()
+        cli::cat_boxx("Constraints",
+          float = "center"
+        )
+        secretary::typewrite("Executing constraints...")
+      }
 
+      constraints(
+        conn = conn,
+        target_schema = target_schema,
+        verbose = verbose,
+        render_sql = render_sql
+      )
+    }
+
+    if ("log" %in% steps) {
+      if (verbose) {
+        cli::cat_line()
+        cli::cat_boxx("Log",
+          float = "center"
+        )
+        secretary::typewrite("Logging...")
+      }
+
+      log(
+        conn = conn,
+        target_schema = target_schema,
+        release_version = release_version,
+        verbose = verbose,
+        render_sql = render_sql
+      )
+    }
+  }

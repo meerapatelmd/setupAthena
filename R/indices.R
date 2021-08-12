@@ -11,14 +11,12 @@
 #' @import prettyunits
 
 indices <-
-    function(conn,
-             target_schema,
-             verbose = TRUE,
-             render_sql = TRUE) {
-
-
-        sql <-
-            SqlRender::render(
+  function(conn,
+           target_schema,
+           verbose = TRUE,
+           render_sql = TRUE) {
+    sql <-
+      SqlRender::render(
         "
         ALTER TABLE @schema.concept ADD CONSTRAINT xpk_concept PRIMARY KEY (concept_id);
         ALTER TABLE @schema.vocabulary ADD CONSTRAINT xpk_vocabulary PRIMARY KEY (vocabulary_id);
@@ -60,42 +58,41 @@ indices <-
         CREATE INDEX idx_drug_strength_id_1 ON @schema.drug_strength (drug_concept_id ASC);
         CLUSTER @schema.drug_strength USING idx_drug_strength_id_1 ;
         CREATE INDEX idx_drug_strength_id_2 ON @schema.drug_strength (ingredient_concept_id ASC);
-        ", schema = target_schema)
+        ",
+        schema = target_schema
+      )
 
 
-        sql_statements <-
-            strsplit(x = sql,
-                     split = ";") %>%
-            unlist() %>%
-            trimws(which = "both")
+    sql_statements <-
+      strsplit(
+        x = sql,
+        split = ";"
+      ) %>%
+      unlist() %>%
+      trimws(which = "both")
 
-        start_time  <- Sys.time()
-        cli::cli_progress_bar(
-            format = "\n{sql_statement} | {pb_bar} {pb_current}/{pb_total} {pb_percent} ({pb_elapsed})\n",
-            clear = FALSE,
-            total = length(sql_statements))
+    start_time <- Sys.time()
+    cli::cli_progress_bar(
+      format = "\n{sql_statement} | {pb_bar} {pb_current}/{pb_total} {pb_percent} ({pb_elapsed})\n",
+      clear = FALSE,
+      total = length(sql_statements)
+    )
 
-        for (sql_statement in sql_statements) {
+    for (sql_statement in sql_statements) {
+      Sys.sleep(0.5)
+      pg13::send(
+        conn = conn,
+        checks = "",
+        sql_statement = sql_statement,
+        render_sql = render_sql,
+        verbose = FALSE
+      )
+      Sys.sleep(0.5)
 
-            Sys.sleep(0.5)
-            pg13::send(
-                conn = conn,
-                checks = "",
-                sql_statement = sql_statement,
-                render_sql = render_sql,
-                verbose = FALSE
-            )
-            Sys.sleep(0.5)
-
-            cli::cli_progress_update()
-
-
-        }
-
-        stop_time <- Sys.time()
-
-        secretary::typewrite(glue::glue("Indices complete! ({prettyunits::pretty_dt(stop_time - start_time}))"))
-
-
+      cli::cli_progress_update()
     }
 
+    stop_time <- Sys.time()
+
+    secretary::typewrite(glue::glue("Indices complete! ({prettyunits::pretty_dt(stop_time - start_time}))"))
+  }

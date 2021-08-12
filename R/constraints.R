@@ -13,14 +13,12 @@
 #' @importFrom pg13 execute_n
 
 constraints <-
-    function(conn,
-             target_schema,
-             verbose = TRUE,
-             render_sql = TRUE) {
-
-
-            sql <- SqlRender::render(
-                "
+  function(conn,
+           target_schema,
+           verbose = TRUE,
+           render_sql = TRUE) {
+    sql <- SqlRender::render(
+      "
                 ALTER TABLE @schema.concept ADD CONSTRAINT fpk_concept_domain FOREIGN KEY (domain_id)  REFERENCES domain (domain_id);
                 ALTER TABLE @schema.concept ADD CONSTRAINT fpk_concept_class FOREIGN KEY (concept_class_id)  REFERENCES concept_class (concept_class_id);
                 ALTER TABLE @schema.concept ADD CONSTRAINT fpk_concept_vocabulary FOREIGN KEY (vocabulary_id)  REFERENCES vocabulary (vocabulary_id);
@@ -52,27 +50,28 @@ constraints <-
                 ALTER TABLE @schema.concept_relationship ADD CONSTRAINT chk_cr_invalid_reason CHECK (COALESCE(invalid_reason,'D')='D');
                 ALTER TABLE @schema.concept_synonym ADD CONSTRAINT chk_csyn_concept_synonym_name CHECK (concept_synonym_name <> '');
                 ",
-                schema = target_schema)
+      schema = target_schema
+    )
 
 
-            sql_statements <-
-                strsplit(x = sql,
-                         split = ";") %>%
-                unlist() %>%
-                trimws(which = "both")
+    sql_statements <-
+      strsplit(
+        x = sql,
+        split = ";"
+      ) %>%
+      unlist() %>%
+      trimws(which = "both")
 
 
-            for (i in seq_along(sql_statements)) {
-
-                    tryCatch(
-                    pg13::send(conn = conn,
-                               sql_statement = sql_statements[i],
-                               verbose = verbose,
-                               render_sql = render_sql),
-                    error = function(e) NULL)
-
-            }
-
-
+    for (i in seq_along(sql_statements)) {
+      tryCatch(
+        pg13::send(
+          conn = conn,
+          sql_statement = sql_statements[i],
+          verbose = verbose,
+          render_sql = render_sql
+        ),
+        error = function(e) NULL
+      )
     }
-
+  }
