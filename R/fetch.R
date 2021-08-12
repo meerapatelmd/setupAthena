@@ -4,17 +4,8 @@
 #' @param conn_fun PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[rlang]{parse_expr}}
-#'  \code{\link[pg13]{dc}},\code{\link[pg13]{c("query", "query")}}
 #' @rdname fetch_last_log
-#' @export 
+#' @export
 #' @importFrom rlang parse_expr
 #' @importFrom pg13 dc query
 fetch_last_log <-
@@ -52,17 +43,8 @@ fetch_last_log <-
 #' @param conn_fun PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[rlang]{parse_expr}}
-#'  \code{\link[pg13]{dc}}
 #' @rdname fetch_omop_release_version
-#' @export 
+#' @export
 #' @importFrom rlang parse_expr
 #' @importFrom pg13 dc
 fetch_omop_release_version <-
@@ -95,19 +77,8 @@ fetch_omop_release_version <-
 #' @param conn_fun PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[rlang]{parse_expr}}
-#'  \code{\link[pg13]{dc}}
-#'  \code{\link[stringr]{str_replace}}
-#'  \code{\link[glue]{glue}}
 #' @rdname fetch_vocabulary_id_version
-#' @export 
+#' @export
 #' @importFrom rlang parse_expr
 #' @importFrom pg13 dc
 #' @importFrom stringr str_replace_all

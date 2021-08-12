@@ -3,6 +3,8 @@
 * Added `vocabulary_version` to log  
 * Added improved console messaging, including processing 
 time to `indices()`  
+* Converted log to a safer process where the previous log 
+is only dropped when the new one is successfully written  
 
 
 # setupAthena 0.4.0 (2021-06-18)  
