@@ -6,6 +6,9 @@
 #' @export
 #' @importFrom SqlRender render
 #' @importFrom pg13 send
+#' @import glue
+#' @import cli
+#' @import prettyunits
 
 indices <-
     function(conn,
@@ -66,18 +69,32 @@ indices <-
             unlist() %>%
             trimws(which = "both")
 
+        start_time  <- Sys.time()
+        cli::cli_progress_bar(
+            format = "\n{sql_statement} | {pb_bar} {pb_current}/{pb_total} {pb_percent} ({pb_elapsed})\n",
+            clear = FALSE,
+            total = length(sql_statements))
+
         for (sql_statement in sql_statements) {
 
+            Sys.sleep(0.5)
             pg13::send(
                 conn = conn,
                 checks = "",
                 sql_statement = sql_statement,
                 render_sql = render_sql,
-                verbose = verbose
+                verbose = FALSE
             )
+            Sys.sleep(0.5)
+
+            cli::cli_progress_update()
 
 
         }
+
+        stop_time <- Sys.time()
+
+        secretary::typewrite(glue::glue("Indices complete! ({prettyunits::pretty_dt(stop_time - start_time}))"))
 
 
     }

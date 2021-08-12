@@ -10,20 +10,3 @@ log(conn, target_schema, verbose = TRUE, render_sql = TRUE, release_version)
 This function prints the number of rows for all the
 vocabulary tables in the R console.
 }
-\seealso{
-\code{\link[purrr]{map}},
-\code{\link[purrr]{set_names}}
-\code{\link[pg13]{query}},
-\code{\link[pg13]{renderRowCount}},
-\code{\link[pg13]{table_exists}},
-\code{\link[pg13]{send}},
-\code{\link[pg13]{appendTable}}
-\code{\link[dplyr]{bind}},
-\code{\link[dplyr]{rename}},
-\code{\link[dplyr]{mutate}},
-\code{\link[dplyr]{select}},
-\code{\link[dplyr]{reexports}}
-\code{\link[cli]{cat_line}}
-\code{\link[tibble]{as_tibble}}
-\code{\link[tidyr]{pivot_wider}}
-}

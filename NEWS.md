@@ -1,3 +1,10 @@
+# setupAthena 0.5.0 (2021-08-12)  
+
+* Added `vocabulary_version` to log  
+* Added improved console messaging, including processing 
+time to `indices()`  
+
+
 # setupAthena 0.4.0 (2021-06-18)  
  
 * Added `sa_release_version` and `sa_schema` field to log  

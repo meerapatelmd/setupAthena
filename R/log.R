@@ -5,30 +5,14 @@
 #' This function prints the number of rows for all the
 #' vocabulary tables in the R console.
 #'
-#' @seealso
-#'  \code{\link[purrr]{map}},
-#'  \code{\link[purrr]{set_names}}
-#'  \code{\link[pg13]{query}},
-#'  \code{\link[pg13]{renderRowCount}},
-#'  \code{\link[pg13]{table_exists}},
-#'  \code{\link[pg13]{send}},
-#'  \code{\link[pg13]{appendTable}}
-#'  \code{\link[dplyr]{bind}},
-#'  \code{\link[dplyr]{rename}},
-#'  \code{\link[dplyr]{mutate}},
-#'  \code{\link[dplyr]{select}},
-#'  \code{\link[dplyr]{reexports}}
-#'  \code{\link[cli]{cat_line}}
-#'  \code{\link[tibble]{as_tibble}}
-#'  \code{\link[tidyr]{pivot_wider}}
 #' @rdname log
 #' @export
-#' @importFrom purrr map set_names
-#' @importFrom pg13 query renderRowCount table_exists send appendTable
-#' @importFrom dplyr bind_rows rename mutate select everything
+#' @import purrr
+#' @import pg13
+#' @import dplyr
 #' @importFrom cli cat_line cat_boxx
-#' @importFrom tibble as_tibble
-#' @importFrom tidyr pivot_wider
+#' @import tibble
+#' @import tidyr
 
 log <-
         function(conn,
@@ -93,8 +77,28 @@ log <-
                         dplyr::select(sa_datetime,
                                       sa_release_version,
                                       sa_schema,
-                                      dplyr::everything()) %>%
-                        dplyr::rename_all(tolower)
+                                      dplyr::everything())
+
+                vocabulary_versions <-
+                        pg13::read_table(
+                                conn = conn,
+                                schema = target_schema,
+                                table  = "vocabulary",
+                                verbose = verbose,
+                                render_sql = render_sql) %>%
+                        dplyr::select(vocabulary_id,
+                                      vocabulary_version) %>%
+                        tidyr::pivot_wider(names_from = vocabulary_id,
+                                           values_from = vocabulary_version)
+
+
+                new_log_entry <-
+                        cbind(new_log_entry,
+                              vocabulary_versions) %>%
+                        dplyr::rename_all(tolower) %>%
+                        dplyr::rename_all(stringr::str_replace_all,
+                                          "[ ]",
+                                          "_")
 
 
                 if (pg13::table_exists(conn = conn,
@@ -124,6 +128,7 @@ log <-
                 } else {
                         new_log <- new_log_entry
                 }
+
 
                 pg13::write_table(conn = conn,
                                   schema = "public",
