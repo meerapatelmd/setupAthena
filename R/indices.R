@@ -70,6 +70,7 @@ indices <-
 
             pg13::send(
                 conn = conn,
+                checks = "",
                 sql_statement = sql_statement,
                 render_sql = render_sql,
                 verbose = verbose
