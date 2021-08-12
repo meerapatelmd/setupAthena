@@ -35,10 +35,45 @@ run_setup <-
                  verbose = TRUE,
                  render_sql = TRUE) {
 
+                if (any(c("drop_tables","copy") %in% steps)) {
+
+                        if (missing(path_to_csvs)) {
+
+                                stop("`path_to_csvs` required before dropping or for copying.",
+                                     call. = FALSE)
+
+                        }
+
+                }
+
                 # Check csv path
                 path_to_csvs <-
                         normalizePath(file.path(path_to_csvs),
                                       mustWork = TRUE)
+
+                # Prepare CPT4
+                if ("prepare_cpt4" %in% steps) {
+
+                        if (missing(umls_api_key)) {
+
+                                umls_api_key <- readline(prompt = "UMLS API Key: ")
+
+                        }
+
+                        prepare_cpt4(path_to_csvs = path_to_csvs,
+                                     umls_api_key = umls_api_key,
+                                     verbose      = verbose)
+
+                } else {
+
+                      if (!("logs" %in% list.files(path_to_csvs))) {
+
+                              readline("No record of CPT4 processing found in `path_to_csvs`. Continue? ")
+
+                      }
+
+
+                }
 
                 # If log is a step, release_version must be present
                 if ("log" %in% steps) {
@@ -59,26 +94,6 @@ run_setup <-
 
                 }
 
-                if (!pg13::is_conn_open(conn = conn)) {
-
-                        stop("`conn` is not open.")
-
-                }
-
-                # Prepare CPT4
-                if ("prepare_cpt4" %in% steps) {
-
-                        if (missing(umls_api_key)) {
-
-                                umls_api_key <- readline(prompt = "UMLS API Key: ")
-
-                        }
-
-                        prepare_cpt4(path_to_csvs = path_to_csvs,
-                                     umls_api_key = umls_api_key,
-                                     verbose      = verbose)
-
-                }
 
                 if ("drop_tables" %in% steps) {
 

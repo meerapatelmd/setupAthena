@@ -98,7 +98,7 @@ log <-
                               vocabulary_versions) %>%
                         dplyr::rename_all(tolower) %>%
                         dplyr::rename_all(stringr::str_replace_all,
-                                          "[ ]|[[:punct:]]",
+                                          "[ ]|[+]",
                                           "_")
 
 
