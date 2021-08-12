@@ -120,9 +120,10 @@ log <-
                                                  new_log_entry)
 
 
-                        pg13::drop_table(conn = conn,
+                        pg13::rename_table(conn = conn,
                                          schema = "public",
-                                         table = "setup_athena_log",
+                                         tableName = "setup_athena_log",
+                                         newTableName = "previous_setup_athena_log",
                                          verbose = verbose,
                                          render_sql = render_sql)
 
@@ -139,5 +140,14 @@ log <-
                                   render_sql = render_sql)
 
 
+                pg13::drop_table(conn = conn,
+                                 schema = "public",
+                                 table = "previous_setup_athena_log",
+                                 verbose = verbose,
+                                 render_sql = render_sql)
+
+
 
         }
+
+
