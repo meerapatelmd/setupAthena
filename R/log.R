@@ -89,6 +89,7 @@ log <-
                         dplyr::select(vocabulary_id,
                                       vocabulary_version) %>%
                         tidyr::pivot_wider(names_from = vocabulary_id,
+                                           names_glue = "{vocabulary_id} Version",
                                            values_from = vocabulary_version)
 
 
