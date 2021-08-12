@@ -2,13 +2,10 @@
 #' Execute Athena Indexes
 #' @description
 #' SQL for indices derived from \url{"https://raw.githubusercontent.com/OHDSI/CommonDataModel/master/PostgreSQL/OMOP%20CDM%20postgresql%20pk%20indexes.txt"}
-#' @seealso
-#'  \code{\link[SqlRender]{render}}
-#'  \code{\link[pg13]{execute_n}}
 #' @rdname indices
 #' @export
 #' @importFrom SqlRender render
-#' @importFrom pg13 execute_n
+#' @importFrom pg13 send
 
 indices <-
     function(conn,
@@ -69,11 +66,17 @@ indices <-
             unlist() %>%
             trimws(which = "both")
 
+        for (sql_statement in sql_statements) {
 
-        pg13::execute_n(conn = conn,
-                      sql_statements = sql_statements,
-                      verbose = verbose,
-                      render_sql = verbose)
+            pg13::send(
+                conn = conn,
+                sql_statement = sql_statement,
+                render_sql = render_sql,
+                verbose = verbose
+            )
+
+
+        }
 
 
     }
