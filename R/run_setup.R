@@ -16,9 +16,11 @@
 #' @rdname run_setup
 #' @export
 #' @importFrom rlang parse_expr
+#' @importFrom pg13 dc ls_schema drop_cascade create_schema send
 #' @importFrom cli cat_line cat_boxx
 #' @importFrom secretary typewrite
 #' @importFrom SqlRender render
+#' @importFrom chariotViz get_version_key setup_chariotViz
 
 run_setup <-
   function(conn,
@@ -29,7 +31,8 @@ run_setup <-
              "copy",
              "indices",
              "constraints",
-             "log"
+             "log",
+             "chariotviz_cache"
            ),
            path_to_csvs,
            release_version,
@@ -347,5 +350,19 @@ run_setup <-
         verbose = verbose,
         render_sql = render_sql
       )
+    }
+
+    if ("chariotviz_cache" %in% steps) {
+
+      version_key <-
+      chariotViz::get_version_key(conn = conn)
+
+      chariotViz::setup_chariotViz(conn = conn,
+                                   schema = target_schema,
+                                   verbose = verbose,
+                                   render_sql = render_sql,
+                                   version_key = version_key)
+
+
     }
   }

@@ -1,3 +1,9 @@
+# setupAthena 0.6.0 (2021-08-28)  
+
+* Fixed prettyunits parsing error when running indexes  
+* Added `chariotViz` package setup integration
+
+
 # setupAthena 0.5.0 (2021-08-12)  
 
 * New `fetch_*` functions that retrieves version information 

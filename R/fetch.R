@@ -8,6 +8,8 @@
 #' @export
 #' @importFrom rlang parse_expr
 #' @importFrom pg13 dc query
+#' @importFrom stringr str_replace_all
+#' @importFrom glue glue
 fetch_last_log <-
   function(conn,
            conn_fun,
@@ -57,7 +59,9 @@ fetch_last_log <-
 #' @rdname fetch_omop_release_version
 #' @export
 #' @importFrom rlang parse_expr
-#' @importFrom pg13 dc
+#' @importFrom pg13 dc query
+#' @importFrom stringr str_replace_all
+#' @importFrom glue glue
 fetch_omop_release_version <-
   function(conn,
            conn_fun,
@@ -93,7 +97,7 @@ fetch_omop_release_version <-
 #' @rdname fetch_vocabulary_id_version
 #' @export
 #' @importFrom rlang parse_expr
-#' @importFrom pg13 dc
+#' @importFrom pg13 dc query
 #' @importFrom stringr str_replace_all
 #' @importFrom glue glue
 fetch_vocabulary_id_version <-

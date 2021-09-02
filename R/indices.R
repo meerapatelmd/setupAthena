@@ -6,9 +6,9 @@
 #' @export
 #' @importFrom SqlRender render
 #' @importFrom pg13 send
-#' @import glue
-#' @import cli
-#' @import prettyunits
+#' @importFrom prettyunits pretty_dt
+#' @importFrom secretary typewrite
+#' @importFrom glue glue
 
 indices <-
   function(conn,
@@ -72,13 +72,9 @@ indices <-
       trimws(which = "both")
 
     start_time <- Sys.time()
-    cli::cli_progress_bar(
-      format = "\n{sql_statement} | {pb_bar} {pb_current}/{pb_total} {pb_percent} ({pb_elapsed})\n",
-      clear = FALSE,
-      total = length(sql_statements)
-    )
-
+    i <- 0
     for (sql_statement in sql_statements) {
+      i <- i+1
       Sys.sleep(0.5)
       pg13::send(
         conn = conn,
@@ -88,11 +84,29 @@ indices <-
         verbose = FALSE
       )
       Sys.sleep(0.5)
+      indices_time <-
+        difftime(Sys.time(),
+                 start_time)
+      indices_time <-
+        prettyunits::pretty_dt(indices_time)
 
-      cli::cli_progress_update()
+      percent_progress <-
+        paste0(
+          formatC(round(i/length(sql_statements) * 100, digits = 1), format = "f",
+          digits = 1), "%")
+
+      secretary::typewrite(glue::glue("{percent_progress} completed..."))
+      secretary::typewrite(glue::glue("{indices_time} elapsed..."))
     }
 
     stop_time <- Sys.time()
 
-    secretary::typewrite(glue::glue("Indices complete! ({prettyunits::pretty_dt(stop_time - start_time}))"))
+    indices_time <-
+      difftime(stop_time,
+               start_time)
+
+    indices_time <-
+      prettyunits::pretty_dt(indices_time)
+
+    secretary::typewrite(glue::glue("Indices complete! [{indices_time}]"))
   }

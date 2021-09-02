@@ -10,7 +10,10 @@
 #' @rdname constraints
 #' @export
 #' @importFrom SqlRender render
-#' @importFrom pg13 execute_n
+#' @importFrom pg13 send
+#' @importFrom prettyunits pretty_dt
+#' @importFrom secretary typewrite
+#' @importFrom glue glue
 
 constraints <-
   function(conn,
@@ -62,6 +65,7 @@ constraints <-
       unlist() %>%
       trimws(which = "both")
 
+    start_time <- Sys.time()
 
     for (i in seq_along(sql_statements)) {
       tryCatch(
@@ -73,5 +77,30 @@ constraints <-
         ),
         error = function(e) NULL
       )
+
+      constraint_time <-
+        difftime(Sys.time(),
+                 start_time)
+      constraint_time <-
+        prettyunits::pretty_dt(constraint_time)
+
+      percent_progress <-
+        paste0(
+          formatC(round(i/length(sql_statements) * 100, digits = 1), format = "f",
+                  digits = 1), "%")
+
+      secretary::typewrite(glue::glue("{percent_progress} completed..."))
+      secretary::typewrite(glue::glue("{constraint_time} elapsed..."))
     }
+
+    stop_time <- Sys.time()
+
+    constraint_time <-
+      difftime(stop_time,
+               start_time)
+
+    constraint_time <-
+      prettyunits::pretty_dt(constraint_time)
+
+    secretary::typewrite(glue::glue("Constraints complete! [{constraint_time}]"))
   }

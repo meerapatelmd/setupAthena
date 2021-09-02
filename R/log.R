@@ -7,12 +7,13 @@
 #'
 #' @rdname log
 #' @export
-#' @import purrr
-#' @import pg13
-#' @import dplyr
+#' @importFrom purrr map set_names
+#' @importFrom pg13 query renderRowCount read_table table_exists rename_table write_table drop_table
+#' @importFrom dplyr bind_rows rename mutate select everything rename_all
+#' @importFrom SqlRender render
 #' @importFrom cli cat_line cat_boxx
-#' @import tibble
-#' @import tidyr
+#' @importFrom tidyr pivot_wider
+#' @importFrom stringr str_replace_all
 
 log <-
   function(conn,
