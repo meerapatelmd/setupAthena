@@ -29,6 +29,7 @@ copy <-
            conn,
            verbose = TRUE,
            render_sql = TRUE) {
+
     vocabulary_files <-
       c(
         "CONCEPT_ANCESTOR.csv",
