@@ -22,6 +22,15 @@ Run the java script that reconstitutes CPT4 concepts
 directly from the R console. CPT4 will not be loaded
 into Postgres If this is not run beforehand.
 }
+\details{
+A copy of the CONCEPT.csv file is made to CONCEPT_WITHOUT_CPT4.csv
+for safekeeping. If the function exits early, the CONCEPT.csv file
+is replaced with CONCEPT_WITHOUT_CPT4.csv and the \code{logs} directory
+is unlinked recursively. If the function completes, the
+CONCEPT_WITHOUT_CPT4.csv is removed instead. This way, the file
+would not need to be redownloaded in case something goes wrong
+during processing.
+}
 \seealso{
 \code{\link[cli]{cat_line}}
 \code{\link[secretary]{typewrite}},

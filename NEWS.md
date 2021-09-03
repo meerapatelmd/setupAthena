@@ -1,4 +1,12 @@
-# setupAthena (development version)
+# setupAthena (development version)  
+
+* Added steps in `prepare_cpt4` where the 
+native CONCEPT.csv file is copied for safekeeping 
+and replaced with the original in case the function 
+exits early. This was added to avoid having to redownload 
+the vocabulary files every time this function does not 
+complete successfully.  
+
 
 # setupAthena 0.6.0 (2021-08-28)  
 

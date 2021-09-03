@@ -8,7 +8,7 @@ run_setup(
   conn,
   conn_fun,
   target_schema = "omop_vocabulary",
-  steps = c("drop_tables", "copy", "indices", "constraints", "log"),
+  steps = c("drop_tables", "copy", "indices", "constraints", "log", "chariotviz_cache"),
   path_to_csvs,
   release_version,
   umls_api_key,

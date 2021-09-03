@@ -11,6 +11,15 @@
 #' @param umls_api_key API Key given at
 #' \href{https://uts.nlm.nih.gov/uts/profile}{UMLS Licensee Profile}.
 #'
+#' @details
+#' A copy of the CONCEPT.csv file is made to CONCEPT_WITHOUT_CPT4.csv
+#' for safekeeping. If the function exits early, the CONCEPT.csv file
+#' is replaced with CONCEPT_WITHOUT_CPT4.csv and the `logs` directory
+#' is unlinked recursively. If the function completes, the
+#' CONCEPT_WITHOUT_CPT4.csv is removed instead. This way, the file
+#' would not need to be redownloaded in case something goes wrong
+#' during processing.
+#'
 #'
 #' @seealso
 #'  \code{\link[cli]{cat_line}}
@@ -27,6 +36,47 @@ prepare_cpt4 <-
   function(path_to_csvs,
            umls_api_key,
            verbose = TRUE) {
+
+    stopifnot(length(umls_api_key)==1)
+    stopifnot(umls_api_key!="")
+
+
+    concept_path <-
+      file.path(path_to_csvs, "CONCEPT.csv")
+    concept_without_cpt4_path <-
+      file.path(path_to_csvs, "CONCEPT_WITHOUT_CPT4.csv")
+    log_dir <-
+      file.path(path_to_csvs, "logs")
+
+    replace_incomplete_concept <-
+      function(concept_path,
+               concept_without_cpt4_path,
+               log_dir) {
+
+        file.remove(concept_path)
+        file.rename(from = concept_without_cpt4_path,
+                    to = concept_path)
+        if (dir.exists(log_dir)) {
+
+          unlink(log_dir,
+                 recursive = TRUE)
+
+        }
+
+      }
+
+    on.exit(replace_incomplete_concept(concept_path = concept_path,
+                                       concept_without_cpt4_path = concept_without_cpt4_path,
+                                       log_dir = log_dir))
+
+    if (!file.exists(concept_without_cpt4_path)) {
+
+      file.copy(from = concept_path,
+                to   = concept_without_cpt4_path)
+
+    }
+
+
     cli::cat_boxx("Reconstitute CPT4",
       float = "center"
     )
@@ -56,6 +106,7 @@ prepare_cpt4 <-
       cli::cat_line()
     }
 
+    on.exit(file.remove(concept_without_cpt4_path))
 
     command <-
       command %>%
