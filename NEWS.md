@@ -1,3 +1,5 @@
+# setupAthena (development version)
+
 # setupAthena 0.6.0 (2021-08-28)  
 
 * Fixed prettyunits parsing error when running indexes  
