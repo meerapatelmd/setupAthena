@@ -8,7 +8,10 @@ the vocabulary files every time this function does not
 complete successfully.  
 
 * Added vocabulary counts to the log as well as a 
-warning if any of the vocabulary_ids had 0 counts.  
+warning if any of the vocabulary_ids had 0 counts. 
+
+* Added a diff report that prints to the console between 
+the newest log entry and the one previous to it.  
 
 
 

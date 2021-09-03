@@ -186,24 +186,6 @@ log <-
           render_sql = render_sql
         )
 
-      old_field_names <-
-      c(
-        'concept_ancestor',
-        'concept_class',
-        'concept_relationship',
-        'concept_synonym',
-        'concept',
-        'domain',
-        'drug_strength',
-        'relationship',
-        'vocabulary'
-      )
-
-      old_log <-
-        old_log %>%
-        dplyr::rename_at(dplyr::vars(dplyr::any_of(old_field_names)),
-                         ~paste0(., "_rows"))
-
 
       new_log <-
         dplyr::bind_rows(
