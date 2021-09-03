@@ -14,6 +14,7 @@
 #' @importFrom cli cat_line cat_boxx
 #' @importFrom tidyr pivot_wider
 #' @importFrom stringr str_replace_all
+#' @import huxtable
 
 log <-
   function(conn,
@@ -21,6 +22,7 @@ log <-
            verbose = TRUE,
            render_sql = TRUE,
            release_version) {
+
     table_names <-
       c(
         "CONCEPT_ANCESTOR",
@@ -54,16 +56,16 @@ log <-
       pg13::query(
         conn = conn,
         sql_statement = SqlRender::render(
-          "WITH c AS (
-                                               SELECT DISTINCT vocabulary_id
-                                               FROM @schema.CONCEPT
-                                              )
+        "WITH c AS (
+           SELECT DISTINCT vocabulary_id
+           FROM @schema.CONCEPT
+          )
 
-                                             SELECT v.*
-                                             FROM @schema.VOCABULARY v
-                                             INNER JOIN c
-                                             ON v.vocabulary_id = c.vocabulary_id
-                                             ORDER BY v.vocabulary_id;",
+         SELECT v.*
+         FROM @schema.VOCABULARY v
+         INNER JOIN c
+         ON v.vocabulary_id = c.vocabulary_id
+         ORDER BY v.vocabulary_id;",
           schema = target_schema
         )
       )
@@ -76,22 +78,19 @@ log <-
 
     cli::cat_line()
 
-
     new_log_entry <-
+      tibble::tibble(sa_datetime = Sys.time()) %>%
+      dplyr::mutate(sa_release_version = release_version) %>%
+      dplyr::mutate(sa_schema = target_schema)
+
+
+    current_row_count <-
       current_row_count %>%
       tidyr::pivot_wider(
         names_from = "Table",
         values_from = "Rows"
       ) %>%
-      dplyr::mutate(sa_datetime = Sys.time()) %>%
-      dplyr::mutate(sa_release_version = release_version) %>%
-      dplyr::mutate(sa_schema = target_schema) %>%
-      dplyr::select(
-        sa_datetime,
-        sa_release_version,
-        sa_schema,
-        dplyr::everything()
-      )
+      dplyr::rename_all(~tolower(paste0(.,"_rows")))
 
     vocabulary_versions <-
       pg13::read_table(
@@ -111,17 +110,63 @@ log <-
         values_from = vocabulary_version
       )
 
+    vocabulary_cts <-
+    pg13::query(
+      conn = conn,
+      sql_statement = SqlRender::render(
+        "
+        WITH all_vocabs AS (
+          SELECT vocabulary_id
+          FROM @schema.VOCABULARY v
+        ),
+        cts AS (
+          SELECT vocabulary_id,COUNT(DISTINCT concept_id) AS vocabulary_id_ct
+          FROM @schema.CONCEPT c
+          GROUP BY vocabulary_id
+          ORDER BY COUNT(DISTINCT concept_id)
+        )
 
-    new_log_entry <-
+        SELECT
+          all_vocabs.vocabulary_id,
+          CASE WHEN cts.vocabulary_id_ct IS NULL THEN 0 ELSE cts.vocabulary_id_ct
+            END vocabulary_id_ct
+        FROM all_vocabs
+        LEFT JOIN cts
+        ON all_vocabs.vocabulary_id = cts.vocabulary_id
+        ",
+        schema = target_schema
+      )
+    )
+
+    vocabulary_cts2 <-
+      vocabulary_cts %>%
+      dplyr::filter(vocabulary_id_ct != 0) %>%
+      tidyr::pivot_wider(
+        names_from = vocabulary_id,
+        names_glue = "{vocabulary_id}_ct",
+        values_from = vocabulary_id_ct
+      )
+
+    new_log_entry2 <-
       cbind(
-        new_log_entry,
-        vocabulary_versions
+        vocabulary_versions,
+        vocabulary_cts2
       ) %>%
       dplyr::rename_all(tolower) %>%
       dplyr::rename_all(
         stringr::str_replace_all,
         "[ ]|[+]",
         "_"
+      )
+    new_log_entry2 <-
+    new_log_entry2 %>%
+      dplyr::select(dplyr::all_of(sort(colnames(new_log_entry2))))
+
+    final_log_entry <-
+      cbind(
+        new_log_entry,
+        current_row_count,
+        new_log_entry2
       )
 
 
@@ -130,6 +175,8 @@ log <-
       schema = "public",
       table_name = "setup_athena_log"
     )) {
+
+
       old_log <-
         pg13::read_table(
           conn = conn,
@@ -139,12 +186,30 @@ log <-
           render_sql = render_sql
         )
 
+      old_field_names <-
+      c(
+        'concept_ancestor',
+        'concept_class',
+        'concept_relationship',
+        'concept_synonym',
+        'concept',
+        'domain',
+        'drug_strength',
+        'relationship',
+        'vocabulary'
+      )
+
+      old_log <-
+        old_log %>%
+        dplyr::rename_at(dplyr::vars(dplyr::any_of(old_field_names)),
+                         ~paste0(., "_rows"))
+
 
       new_log <-
         dplyr::bind_rows(
           old_log,
-          new_log_entry
-        )
+          final_log_entry) %>%
+        dplyr::select(dplyr::all_of(colnames(final_log_entry)))
 
 
       pg13::rename_table(
@@ -155,8 +220,19 @@ log <-
         verbose = verbose,
         render_sql = render_sql
       )
+
+      on.exit(expr =
+                pg13::rename_table(
+                  conn = conn,
+                  schema = "public",
+                  tableName = "previous_setup_athena_log",
+                  newTableName = "setup_athena_log",
+                  verbose = verbose,
+                  render_sql = render_sql
+                )
+                )
     } else {
-      new_log <- new_log_entry
+      new_log <- final_log_entry
     }
 
 
@@ -170,11 +246,78 @@ log <-
     )
 
 
-    pg13::drop_table(
-      conn = conn,
-      schema = "public",
-      table = "previous_setup_athena_log",
-      verbose = verbose,
-      render_sql = render_sql
+    on.exit(expr =
+              pg13::drop_table(
+                conn = conn,
+                schema = "public",
+                table = "previous_setup_athena_log",
+                verbose = verbose,
+                render_sql = render_sql,
+                if_exists = TRUE
+              )
     )
+
+    empty_vocabularies <-
+      vocabulary_cts %>%
+      dplyr::filter(vocabulary_id_ct == 0)
+
+    if (nrow(empty_vocabularies)>0) {
+
+      report_empties <-
+        function() {
+      secretary::typewrite_warning("The following vocabularies do not have concepts:")
+      sapply(empty_vocabularies$vocabulary_id,
+             FUN = secretary::typewrite,
+             timepunched = FALSE,
+             tabs = 5)
+        }
+
+      on.exit(report_empties(),
+              add = TRUE,
+              after = TRUE)
+
+
+    }
+
+    updated_log <-
+      pg13::read_table(
+        conn = conn,
+        schema = "public",
+        table = "setup_athena_log",
+        verbose = verbose,
+        render_sql = render_sql
+      )
+
+    last_row <-
+      updated_log %>%
+      dplyr::mutate_all(as.character) %>%
+      dplyr::filter(dplyr::row_number() == nrow(updated_log)) %>%
+      tidyr::pivot_longer(cols = dplyr::everything())
+
+    second_to_last_row <-
+      updated_log %>%
+      dplyr::mutate_all(as.character) %>%
+      dplyr::filter(dplyr::row_number() == (nrow(updated_log)-1))  %>%
+      tidyr::pivot_longer(cols = dplyr::everything())
+
+
+    comparison_hx <-
+    second_to_last_row %>%
+      dplyr::full_join(last_row,
+                       by = "name",
+                       suffix = c("_before", "_after")) %>%
+      dplyr::mutate(diff_exists =
+               value_before != value_after) %>%
+      dplyr::filter(diff_exists == TRUE) %>%
+      dplyr::select(-diff_exists) %>%
+      huxtable::hux() %>%
+      huxtable::theme_article()
+
+    on.exit(
+      huxtable::print_screen(ht = comparison_hx,
+                             colnames = FALSE),
+            add = TRUE,
+            after = TRUE)
+
+
   }

@@ -7,6 +7,10 @@ exits early. This was added to avoid having to redownload
 the vocabulary files every time this function does not 
 complete successfully.  
 
+* Added vocabulary counts to the log as well as a 
+warning if any of the vocabulary_ids had 0 counts.  
+
+
 
 # setupAthena 0.6.0 (2021-08-28)  
 

@@ -65,10 +65,6 @@ prepare_cpt4 <-
 
       }
 
-    on.exit(replace_incomplete_concept(concept_path = concept_path,
-                                       concept_without_cpt4_path = concept_without_cpt4_path,
-                                       log_dir = log_dir))
-
     if (!file.exists(concept_without_cpt4_path)) {
 
       file.copy(from = concept_path,
@@ -76,6 +72,9 @@ prepare_cpt4 <-
 
     }
 
+    on.exit(replace_incomplete_concept(concept_path = concept_path,
+                                       concept_without_cpt4_path = concept_without_cpt4_path,
+                                       log_dir = log_dir))
 
     cli::cat_boxx("Reconstitute CPT4",
       float = "center"
