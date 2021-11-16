@@ -10,7 +10,7 @@
 /   in the `in_pin_*` fields
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-CREATE TABLE IF NOT EXISTS public.process_omop_classification_log (
+CREATE TABLE IF NOT EXISTS public.process_omop_class_log (
     process_start_datetime timestamp without time zone,
     process_stop_datetime timestamp without time zone,
     omop_version character varying(255),
@@ -99,7 +99,7 @@ begin
 	  format(
 	    '
 		SELECT COUNT(*)
-		FROM public.process_omop_classification_log l
+		FROM public.process_omop_class_log l
 		WHERE
 		  l.omop_version = ''%s'' AND
 		  l.source_table = ''%s'' AND
@@ -228,8 +228,8 @@ BEGIN
   		INTO start_timestamp
   		;
 
-		drop table if exists omop_classification.tmp_atc_classification1;
-		create table omop_classification.tmp_atc_classification1 (
+		drop table if exists omop_class.tmp_atc_classification1;
+		create table omop_class.tmp_atc_classification1 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -251,8 +251,8 @@ BEGIN
 		)
 		;
 		
-		drop table if exists omop_classification.tmp_atc_classification2;
-		create table omop_classification.tmp_atc_classification2 (
+		drop table if exists omop_class.tmp_atc_classification2;
+		create table omop_class.tmp_atc_classification2 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -274,8 +274,8 @@ BEGIN
 		)
 		;
 		
-		drop table if exists omop_classification.atc_classification;
-		create table omop_classification.atc_classification (
+		drop table if exists omop_class.atc_classification;
+		create table omop_class.atc_classification (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -393,7 +393,7 @@ BEGIN
 		 c2.invalid_reason is null
 		);
 		
-		insert into omop_classification.tmp_atc_classification1
+		insert into omop_class.tmp_atc_classification1
 		(
 		SELECT DISTINCT
 		 a.atc_1st_id,
@@ -464,7 +464,7 @@ BEGIN
 		);
 		
 		-- Traverse the RxNorm Precise Ingredient 'Form of' relationship to include Precise Ingredients
-		INSERT INTO omop_classification.tmp_atc_classification2
+		INSERT INTO omop_class.tmp_atc_classification2
 		SELECT DISTINCT
 		 tmp1.atc_1st_id,
 		 tmp1.atc_1st_code,
@@ -484,7 +484,7 @@ BEGIN
 		 pin.concept_id AS in_pin_id,
 		 pin.concept_code AS in_pin_code,
 		 pin.concept_name AS in_pin_name
-		FROM omop_classification.tmp_atc_classification1 tmp1
+		FROM omop_class.tmp_atc_classification1 tmp1
 		LEFT JOIN omop_vocabulary.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_id
 		INNER JOIN omop_vocabulary.concept pin
@@ -495,14 +495,14 @@ BEGIN
 		;
 		
 		-- Write final table
-		INSERT INTO omop_classification.atc_classification
-		SELECT * FROM omop_classification.tmp_atc_classification1
+		INSERT INTO omop_class.atc_classification
+		SELECT * FROM omop_class.tmp_atc_classification1
 		UNION
-		SELECT * FROM omop_classification.tmp_atc_classification2
+		SELECT * FROM omop_class.tmp_atc_classification2
 		;
 		
-		DROP TABLE omop_classification.tmp_atc_classification1;
-		DROP TABLE omop_classification.tmp_atc_classification2;
+		DROP TABLE omop_class.tmp_atc_classification1;
+		DROP TABLE omop_class.tmp_atc_classification2;
 		
 		SELECT get_log_timestamp()
 		INTO stop_timestamp
@@ -516,7 +516,7 @@ BEGIN
 
 		SELECT COUNT(*) 
 		INTO target_rows 
-		FROM omop_classification.atc_classification
+		FROM omop_class.atc_classification
 		;
 	
 		
@@ -533,7 +533,7 @@ BEGIN
 	    	);',
 	    	stop_timestamp, 
 	    	omop_version, 
-	    	'omop_classification', 
+	    	'omop_class', 
 	    	target_table, 
 	    	target_rows
 	    	);
@@ -542,7 +542,7 @@ BEGIN
 		EXECUTE 
 		format(
 		'
-		INSERT INTO public.process_omop_classification_log 
+		INSERT INTO public.process_omop_class_log 
 		VALUES (
 		    ''%s'', -- process_start_datetime timestamp without time zone,
     		''%s'', -- process_stop_datetime timestamp without time zone,
@@ -557,7 +557,7 @@ BEGIN
 			start_timestamp, -- process_start_datetime timestamp without time zone,
     		stop_timestamp,  -- process_stop_datetime timestamp without time zone,
     		omop_version, -- omop_version character varying(255),
-    		'omop_classification', -- target_schema character varying(255),
+    		'omop_class', -- target_schema character varying(255),
     		source_table, -- source_table character varying(255),
     		target_table, -- target_table character varying(255),
     		source_rows, -- source_row_ct numeric,
