@@ -48,8 +48,6 @@ begin
 END;
 $$;
 
-SELECT * FROM public.setup_athena_log;
-
 create or replace function get_omop_version()
 returns varchar
 language plpgsql
@@ -511,12 +509,14 @@ BEGIN
 		;
 
 
-		SELECT get_row_count(source_table)
-		INTO source_rows
+		SELECT COUNT(*) 
+		INTO source_rows 
+		FROM omop_vocabulary.concept_relationship
 		;
 
-		SELECT get_row_count(target_table)
-		INTO target_rows
+		SELECT COUNT(*) 
+		INTO target_rows 
+		FROM omop_classification.atc_classification
 		;
 	
 		
