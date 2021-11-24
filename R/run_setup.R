@@ -29,11 +29,13 @@ run_setup <-
            steps = c(
              "drop_tables",
              "copy",
+             "log",
              "indices",
              "constraints",
-             "log",
              "chariotviz_cache"
            ),
+           postprocessing =
+             c("atc_classification"),
            path_to_csvs,
            release_version,
            umls_api_key,
@@ -296,6 +298,24 @@ run_setup <-
       )
     }
 
+    if ("log" %in% steps) {
+      if (verbose) {
+        cli::cat_line()
+        cli::cat_boxx("Log",
+                      float = "center"
+        )
+        secretary::typewrite("Logging...")
+      }
+
+      log(
+        conn = conn,
+        target_schema = target_schema,
+        release_version = release_version,
+        verbose = verbose,
+        render_sql = render_sql
+      )
+    }
+
 
     if ("indices" %in% steps) {
       if (verbose) {
@@ -334,28 +354,46 @@ run_setup <-
       )
     }
 
-    if ("log" %in% steps) {
-      if (verbose) {
-        cli::cat_line()
-        cli::cat_boxx("Log",
-          float = "center"
+
+    for (i in seq_along(postprocessing)) {
+
+      postprocessing_file <-
+      system.file(package = "setupAthena",
+                  "sql",
+                  "postprocessing",
+                  sprintf("%s.sql", postprocessing[i]))
+
+      sql_statement <-
+        paste(readLines(postprocessing_file),
+              collapse = "\n")
+
+      rs <-
+      tryCatch(
+        pg13::send(
+          conn = conn,
+          sql_statement = sql_statements,
+          verbose = verbose,
+          render_sql = render_sql
+        ),
+        error = function(e) "Error"
+      )
+
+      if (identical(rs, "Error")) {
+
+        secretary::typewrite(
+        cli::cli_alert_danger("Postprocessing job '{postprocessing[i]}' failed.")
         )
-        secretary::typewrite("Logging...")
+
+
       }
 
-      log(
-        conn = conn,
-        target_schema = target_schema,
-        release_version = release_version,
-        verbose = verbose,
-        render_sql = render_sql
-      )
     }
+
 
     if ("chariotviz_cache" %in% steps) {
 
       version_key <-
-      chariotViz::get_version_key(conn = conn)
+        chariotViz::get_version_key(conn = conn)
 
       chariotViz::setup_chariotViz(conn = conn,
                                    schema = target_schema,

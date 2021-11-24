@@ -9,7 +9,6 @@
 / - RxNorm 'Precise Ingredient' concepts are also included
 /   in the `in_pin_*` fields
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 CREATE TABLE IF NOT EXISTS public.process_omop_class_log (
     process_start_datetime timestamp without time zone,
     process_stop_datetime timestamp without time zone,
