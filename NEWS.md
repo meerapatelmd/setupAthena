@@ -13,6 +13,9 @@ warning if any of the vocabulary_ids had 0 counts.
 * Added a diff report that prints to the console between 
 the newest log entry and the one previous to it.  
 
+* Introduced `postprocessing` steps to the `run_setup` function 
+to include the creation of downstream lookups and tables such as 
+the ATC classifications for the RxNorm drugs.  
 
 
 # setupAthena 0.6.0 (2021-08-28)  
