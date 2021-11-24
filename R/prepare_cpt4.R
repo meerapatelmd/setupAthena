@@ -86,19 +86,18 @@ prepare_cpt4 <-
       "cd %s",
       path.expand(path_to_csvs)
     )
-    command[[3]] <- sprintf(
-      "java -Dumls-apikey=%s -jar cpt4.jar 5",
-      umls_api_key
-    )
+    command[[3]] <-  "chmod +x cpt.sh"
+    command[[4]] <-  sprintf("./cpt.sh %s", umls_api_key)
+
 
     if (verbose) {
       secretary::typewrite(secretary::magentaTxt("Command:"))
-      command[1:2] %>%
+      command[1:3] %>%
         purrr::map(~ secretary::typewrite(.,
           tabs = 4, timepunched = FALSE
         ))
       secretary::typewrite(
-        "java -Dumls-apikey=umls_api_key -jar cpt4.jar 5",
+        "./cpt.sh",
         tabs = 4,
         timepunched = FALSE
       )
