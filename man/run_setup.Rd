@@ -9,7 +9,7 @@ run_setup(
   conn_fun,
   target_schema = "omop_vocabulary",
   steps = c("drop_tables", "copy", "log", "indices", "constraints", "chariotviz_cache"),
-  postprocessing = c("atc_classification"),
+  postprocessing = c("omop_atc_classification"),
   path_to_csvs,
   release_version,
   umls_api_key,

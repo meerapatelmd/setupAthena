@@ -35,13 +35,19 @@ run_setup <-
              "chariotviz_cache"
            ),
            postprocessing =
-             c("atc_classification"),
+             c("omop_atc_classification"),
            path_to_csvs,
            release_version,
            umls_api_key,
            verbose = TRUE,
            render_sql = TRUE) {
-    if (any(c("drop_tables", "copy") %in% steps)) {
+
+    steps_requiring_csvs <-
+      c("drop_tables",
+        "copy",
+        "prepare_cpt4")
+
+    if (any(steps_requiring_csvs %in% steps)) {
       if (missing(path_to_csvs)) {
         stop("`path_to_csvs` required before dropping or for copying.",
           call. = FALSE
@@ -49,11 +55,13 @@ run_setup <-
       }
     }
 
+    if (any(steps_requiring_csvs %in% steps)) {
     # Check csv path
     path_to_csvs <-
       normalizePath(file.path(path_to_csvs),
         mustWork = TRUE
       )
+    }
 
     # Prepare CPT4
     if ("prepare_cpt4" %in% steps) {
@@ -66,7 +74,7 @@ run_setup <-
         umls_api_key = umls_api_key,
         verbose = verbose
       )
-    } else {
+    } else if (any(c("drop_tables", "copy") %in% steps)) {
       if (!("logs" %in% list.files(path_to_csvs))) {
         readline("No record of CPT4 processing found in `path_to_csvs`. Continue? ")
       }
@@ -371,7 +379,7 @@ run_setup <-
       tryCatch(
         pg13::send(
           conn = conn,
-          sql_statement = sql_statements,
+          sql_statement = sql_statement,
           verbose = verbose,
           render_sql = render_sql
         ),
