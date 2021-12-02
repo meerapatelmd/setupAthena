@@ -602,7 +602,7 @@ BEGIN
 		'
 		INSERT INTO public.process_omop_class_log
 		VALUES (
-		    ''%s'', -- process_start_datetime timestamp without time zone,
+		''%s'', -- process_start_datetime timestamp without time zone,
     		''%s'', -- process_stop_datetime timestamp without time zone,
     		''%s'', -- omop_version character varying(255),
     		''%s'', -- target_schema character varying(255),
