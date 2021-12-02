@@ -7,7 +7,7 @@
 / - Only valid relationsihps are included
 / - Both invalid and valid RxNorm Ingredients are given
 / - RxNorm 'Precise Ingredient' concepts are also included
-/   in the `in_pin_*` fields
+/   in the `in_pin_min_*` fields
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
 CREATE TABLE IF NOT EXISTS public.process_omop_class_log (
     process_start_datetime timestamp without time zone,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.setup_omop_class_log (
     soc_datetime timestamp without time zone,
     omop_version character varying(255),
     target_schema character varying(255),
-    tablename character varying(63), 
+    tablename character varying(63),
     table_rows bigint
 );
 
@@ -54,10 +54,10 @@ as
 $$
 declare
 	omop_version varchar;
-begin	
-	SELECT sa_release_version 
+begin
+	SELECT sa_release_version
 	INTO omop_version
-	FROM public.setup_athena_log 
+	FROM public.setup_athena_log
 	WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log);
 
   	RETURN omop_version;
@@ -216,13 +216,13 @@ BEGIN
 
 	source_table := 'CONCEPT_RELATIONSHIP';
 	target_table := 'ATC_CLASSIFICATION';
-	
+
 	SELECT check_if_omop_requires_processing(omop_version, source_table, target_table)
 	INTO requires_processing;
-	
-	
-	IF requires_processing THEN 
-	
+
+
+	IF requires_processing THEN
+
 		SELECT get_log_timestamp()
   		INTO start_timestamp
   		;
@@ -244,12 +244,12 @@ BEGIN
 		 atc_5th_id bigint,
 		 atc_5th_code text,
 		 atc_5th_name text,
-		 in_pin_id bigint,
-		 in_pin_code text,
-		 in_pin_name text
+		 in_pin_min_id bigint,
+		 in_pin_min_code text,
+		 in_pin_min_name text
 		)
 		;
-		
+
 		drop table if exists omop_class.tmp_atc_classification2;
 		create table omop_class.tmp_atc_classification2 (
 		 atc_1st_id bigint,
@@ -267,12 +267,35 @@ BEGIN
 		 atc_5th_id bigint,
 		 atc_5th_code text,
 		 atc_5th_name text,
-		 in_pin_id bigint,
-		 in_pin_code text,
-		 in_pin_name text
+		 in_pin_min_id bigint,
+		 in_pin_min_code text,
+		 in_pin_min_name text
 		)
 		;
-		
+
+		drop table if exists omop_class.tmp_atc_classification3;
+		create table omop_class.tmp_atc_classification3 (
+		 atc_1st_id bigint,
+		 atc_1st_code text,
+		 atc_1st_name text,
+		 atc_2nd_id bigint,
+		 atc_2nd_code text,
+		 atc_2nd_name text,
+		 atc_3rd_id bigint,
+		 atc_3rd_code text,
+		 atc_3rd_name text,
+		 atc_4th_id bigint,
+		 atc_4th_code text,
+		 atc_4th_name text,
+		 atc_5th_id bigint,
+		 atc_5th_code text,
+		 atc_5th_name text,
+		 in_pin_min_id bigint,
+		 in_pin_min_code text,
+		 in_pin_min_name text
+		)
+		;
+
 		drop table if exists omop_class.atc_classification;
 		create table omop_class.atc_classification (
 		 atc_1st_id bigint,
@@ -290,12 +313,12 @@ BEGIN
 		 atc_5th_id bigint,
 		 atc_5th_code text,
 		 atc_5th_name text,
-		 in_pin_id bigint,
-		 in_pin_code text,
-		 in_pin_name text
+		 in_pin_min_id bigint,
+		 in_pin_min_code text,
+		 in_pin_min_name text
 		)
 		;
-		
+
 		drop table if exists part_a;
 		create temp table part_a AS (
 		SELECT DISTINCT
@@ -322,7 +345,7 @@ BEGIN
 		    c2.concept_class_id = 'ATC 2nd' AND
 		    c2.invalid_reason is NULL
 		);
-		
+
 		drop table if exists part_b;
 		create temp table part_b AS (
 		SELECT DISTINCT
@@ -342,7 +365,7 @@ BEGIN
 		 c2.concept_class_id = 'ATC 3rd' AND
 		 c2.invalid_reason is null)
 		 ;
-		
+
 		drop table if exists part_c;
 		create temp table part_c AS (
 		SELECT DISTINCT
@@ -371,7 +394,7 @@ BEGIN
 		 c2.concept_class_id = 'ATC 4th' AND
 		 c2.invalid_reason is null
 		);
-		
+
 		drop table if exists part_d;
 		create temp table part_d AS (
 		SELECT DISTINCT
@@ -391,7 +414,7 @@ BEGIN
 		 c2.concept_class_id = 'ATC 5th' AND
 		 c2.invalid_reason is null
 		);
-		
+
 		insert into omop_class.tmp_atc_classification1
 		(
 		SELECT DISTINCT
@@ -410,9 +433,9 @@ BEGIN
 		 d.atc_5th_id,
 		 d.atc_5th_code,
 		 d.atc_5th_name,
-		c2.concept_id AS in_pin_id,
-		c2.concept_code AS in_pin_code,
-		c2.concept_name AS in_pin_name
+		c2.concept_id AS in_pin_min_id,
+		c2.concept_code AS in_pin_min_code,
+		c2.concept_name AS in_pin_min_name
 		from part_a a
 		LEFT JOIN part_b b
 		ON a.atc_2nd_id = b.atc_2nd_id
@@ -427,7 +450,7 @@ BEGIN
 		  ON cr.concept_id_2 = c2.concept_id
 		INNER JOIN (
 		  SELECT DISTINCT
-		    c1.concept_id AS in_pin_id,
+		    c1.concept_id AS in_pin_min_id,
 		    c2.concept_id AS rxnorm_id,
 		    c2.concept_code AS rxnorm_code,
 		    c2.concept_name AS rxnorm_name,
@@ -444,7 +467,7 @@ BEGIN
 		   c1.concept_id <> c2.concept_id
 		  UNION
 		  SELECT DISTINCT
-		    c1.concept_id AS in_pin_id,
+		    c1.concept_id AS in_pin_min_id,
 		    c2.concept_id AS rxnorm_id,
 		    c2.concept_code AS rxnorm_code,
 		    c2.concept_name AS rxnorm_name,
@@ -459,9 +482,9 @@ BEGIN
 		   c1.concept_class_id = 'Ingredient' AND
 		   c1.invalid_reason is null AND
 		   c1.concept_id <> c2.concept_id) ca
-		 ON ca.in_pin_id = c2.concept_id
+		 ON ca.in_pin_min_id = c2.concept_id
 		);
-		
+
 		-- Traverse the RxNorm Precise Ingredient 'Form of' relationship to include Precise Ingredients
 		INSERT INTO omop_class.tmp_atc_classification2
 		SELECT DISTINCT
@@ -480,68 +503,104 @@ BEGIN
 		 tmp1.atc_5th_id,
 		 tmp1.atc_5th_code,
 		 tmp1.atc_5th_name,
-		 pin.concept_id AS in_pin_id,
-		 pin.concept_code AS in_pin_code,
-		 pin.concept_name AS in_pin_name
+		 pin.concept_id AS in_pin_min_id,
+		 pin.concept_code AS in_pin_min_code,
+		 pin.concept_name AS in_pin_min_name
 		FROM omop_class.tmp_atc_classification1 tmp1
 		LEFT JOIN omop_vocabulary.concept_relationship cr
-		ON cr.concept_id_2 = tmp1.in_pin_id
+		ON cr.concept_id_2 = tmp1.in_pin_min_id
 		INNER JOIN omop_vocabulary.concept pin
 		ON pin.concept_id = cr.concept_id_1
 		WHERE
 		  cr.invalid_reason IS NULL AND
 		  cr.relationship_id = 'Form of'
 		;
-		
+
+	        -- Traverse the RxNorm Multiple Ingredient 'Mapped from' relationship
+		INSERT INTO omop_class.tmp_atc_classification3
+		SELECT DISTINCT
+		 tmp1.atc_1st_id,
+		 tmp1.atc_1st_code,
+		 tmp1.atc_1st_name,
+		 tmp1.atc_2nd_id,
+		 tmp1.atc_2nd_code,
+		 tmp1.atc_2nd_name,
+		 tmp1.atc_3rd_id,
+		 tmp1.atc_3rd_code,
+		 tmp1.atc_3rd_name,
+		 tmp1.atc_4th_id,
+		 tmp1.atc_4th_code,
+		 tmp1.atc_4th_name,
+		 tmp1.atc_5th_id,
+		 tmp1.atc_5th_code,
+		 tmp1.atc_5th_name,
+		 ming.concept_id AS in_pin_min_id,
+		 ming.concept_code AS in_pin_min_code,
+		 ming.concept_name AS in_pin_min_name
+		FROM omop_class.tmp_atc_classification1 tmp1
+		LEFT JOIN omop_vocabulary.concept_relationship cr
+		ON cr.concept_id_2 = tmp1.in_pin_min_id
+		INNER JOIN omop_vocabulary.concept ming
+		ON ming.concept_id = cr.concept_id_1
+		WHERE
+		  cr.invalid_reason IS NULL AND
+		  ming.vocabulary_id = 'RxNorm' AND
+		  ming.concept_class_id = 'Multiple Ingredients'
+		;
+
+
 		-- Write final table
 		INSERT INTO omop_class.atc_classification
 		SELECT * FROM omop_class.tmp_atc_classification1
 		UNION
 		SELECT * FROM omop_class.tmp_atc_classification2
+		UNION
+		SELECT * FROM omop_class.tmp_atc_classification3
 		;
-		
+
 		DROP TABLE omop_class.tmp_atc_classification1;
 		DROP TABLE omop_class.tmp_atc_classification2;
-		
+		DROP TABLE omop_class.tmp_atc_classification3;
+
 		SELECT get_log_timestamp()
 		INTO stop_timestamp
 		;
 
 
-		SELECT COUNT(*) 
-		INTO source_rows 
+		SELECT COUNT(*)
+		INTO source_rows
 		FROM omop_vocabulary.concept_relationship
 		;
 
-		SELECT COUNT(*) 
-		INTO target_rows 
+		SELECT COUNT(*)
+		INTO target_rows
 		FROM omop_class.atc_classification
 		;
-	
-		
-		EXECUTE 
+
+
+		EXECUTE
 		format(
 			'
-			INSERT INTO public.setup_omop_class_log 
+			INSERT INTO public.setup_omop_class_log
 			VALUES (
 			''%s'', -- soc_datetime timestamp without time zone,
 	    	''%s'', -- omop_version character varying(255),
 	    	''%s'', -- target_schema character varying(255),
-	    	''%s'', -- tablename character varying(63), 
+	    	''%s'', -- tablename character varying(63),
 	    	''%s'' -- table_rows bigint
 	    	);',
-	    	stop_timestamp, 
-	    	omop_version, 
-	    	'omop_class', 
-	    	target_table, 
+	    	stop_timestamp,
+	    	omop_version,
+	    	'omop_class',
+	    	target_table,
 	    	target_rows
 	    	);
-		
-		
-		EXECUTE 
+
+
+		EXECUTE
 		format(
 		'
-		INSERT INTO public.process_omop_class_log 
+		INSERT INTO public.process_omop_class_log
 		VALUES (
 		    ''%s'', -- process_start_datetime timestamp without time zone,
     		''%s'', -- process_stop_datetime timestamp without time zone,
@@ -552,7 +611,7 @@ BEGIN
     		''%s'', -- source_row_ct numeric,
     		''%s'' -- target_row_ct numeric
 		);
-		', 
+		',
 			start_timestamp, -- process_start_datetime timestamp without time zone,
     		stop_timestamp,  -- process_stop_datetime timestamp without time zone,
     		omop_version, -- omop_version character varying(255),
@@ -563,7 +622,7 @@ BEGIN
     		target_rows -- target_row_ct numeric
     		);
 
-END IF; 
-END; 
+END IF;
+END;
 $$
-; 
+;
