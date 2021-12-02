@@ -215,7 +215,7 @@ BEGIN
 	INTO omop_version;
 
 	source_table := 'CONCEPT_RELATIONSHIP';
-	target_table := 'ATC_CLASSIFICATION';
+	target_table := 'OMOP_ATC_CLASSIFICATION';
 
 	SELECT check_if_omop_requires_processing(omop_version, source_table, target_table)
 	INTO requires_processing;
@@ -227,8 +227,8 @@ BEGIN
   		INTO start_timestamp
   		;
 
-		drop table if exists omop_class.tmp_atc_classification1;
-		create table omop_class.tmp_atc_classification1 (
+		drop table if exists omop_class.tmp_omop_atc_classification1;
+		create table omop_class.tmp_omop_atc_classification1 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -250,8 +250,8 @@ BEGIN
 		)
 		;
 
-		drop table if exists omop_class.tmp_atc_classification2;
-		create table omop_class.tmp_atc_classification2 (
+		drop table if exists omop_class.tmp_omop_atc_classification2;
+		create table omop_class.tmp_omop_atc_classification2 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -273,8 +273,8 @@ BEGIN
 		)
 		;
 
-		drop table if exists omop_class.tmp_atc_classification3;
-		create table omop_class.tmp_atc_classification3 (
+		drop table if exists omop_class.tmp_omop_atc_classification3;
+		create table omop_class.tmp_omop_atc_classification3 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -296,8 +296,8 @@ BEGIN
 		)
 		;
 
-		drop table if exists omop_class.atc_classification;
-		create table omop_class.atc_classification (
+		drop table if exists omop_class.omop_atc_classification;
+		create table omop_class.omop_atc_classification (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -415,7 +415,7 @@ BEGIN
 		 c2.invalid_reason is null
 		);
 
-		insert into omop_class.tmp_atc_classification1
+		insert into omop_class.tmp_omop_atc_classification1
 		(
 		SELECT DISTINCT
 		 a.atc_1st_id,
@@ -486,7 +486,7 @@ BEGIN
 		);
 
 		-- Traverse the RxNorm Precise Ingredient 'Form of' relationship to include Precise Ingredients
-		INSERT INTO omop_class.tmp_atc_classification2
+		INSERT INTO omop_class.tmp_omop_atc_classification2
 		SELECT DISTINCT
 		 tmp1.atc_1st_id,
 		 tmp1.atc_1st_code,
@@ -506,7 +506,7 @@ BEGIN
 		 pin.concept_id AS in_pin_min_id,
 		 pin.concept_code AS in_pin_min_code,
 		 pin.concept_name AS in_pin_min_name
-		FROM omop_class.tmp_atc_classification1 tmp1
+		FROM omop_class.tmp_omop_atc_classification1 tmp1
 		LEFT JOIN omop_vocabulary.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_min_id
 		INNER JOIN omop_vocabulary.concept pin
@@ -517,7 +517,7 @@ BEGIN
 		;
 
 	        -- Traverse the RxNorm Multiple Ingredient 'Mapped from' relationship
-		INSERT INTO omop_class.tmp_atc_classification3
+		INSERT INTO omop_class.tmp_omop_atc_classification3
 		SELECT DISTINCT
 		 tmp1.atc_1st_id,
 		 tmp1.atc_1st_code,
@@ -537,7 +537,7 @@ BEGIN
 		 ming.concept_id AS in_pin_min_id,
 		 ming.concept_code AS in_pin_min_code,
 		 ming.concept_name AS in_pin_min_name
-		FROM omop_class.tmp_atc_classification1 tmp1
+		FROM omop_class.tmp_omop_atc_classification1 tmp1
 		LEFT JOIN omop_vocabulary.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_min_id
 		INNER JOIN omop_vocabulary.concept ming
@@ -550,17 +550,17 @@ BEGIN
 
 
 		-- Write final table
-		INSERT INTO omop_class.atc_classification
-		SELECT * FROM omop_class.tmp_atc_classification1
+		INSERT INTO omop_class.omop_atc_classification
+		SELECT * FROM omop_class.tmp_omop_atc_classification1
 		UNION
-		SELECT * FROM omop_class.tmp_atc_classification2
+		SELECT * FROM omop_class.tmp_omop_atc_classification2
 		UNION
-		SELECT * FROM omop_class.tmp_atc_classification3
+		SELECT * FROM omop_class.tmp_omop_atc_classification3
 		;
 
-		DROP TABLE omop_class.tmp_atc_classification1;
-		DROP TABLE omop_class.tmp_atc_classification2;
-		DROP TABLE omop_class.tmp_atc_classification3;
+		DROP TABLE omop_class.tmp_omop_atc_classification1;
+		DROP TABLE omop_class.tmp_omop_atc_classification2;
+		DROP TABLE omop_class.tmp_omop_atc_classification3;
 
 		SELECT get_log_timestamp()
 		INTO stop_timestamp
@@ -574,7 +574,7 @@ BEGIN
 
 		SELECT COUNT(*)
 		INTO target_rows
-		FROM omop_class.atc_classification
+		FROM omop_class.omop_atc_classification
 		;
 
 
