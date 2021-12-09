@@ -1,4 +1,4 @@
-# setupAthena (development version)  
+# setupAthena 0.7.0 (2021-12-09)  
 
 * Added steps in `prepare_cpt4` where the 
 native CONCEPT.csv file is copied for safekeeping 
