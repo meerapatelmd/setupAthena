@@ -8,7 +8,8 @@ run_setup(
   conn,
   conn_fun = "pg13::local_connect()",
   target_schema = "omop_vocabulary",
-  steps = c("drop_tables", "copy", "log", "indices", "constraints", "chariotviz_cache"),
+  steps = c("prepare_cpt4", "drop_tables", "copy", "log", "indices", "constraints",
+    "chariotviz_cache"),
   postprocessing = c("omop_atc_classification"),
   path_to_csvs,
   release_version,
@@ -34,15 +35,7 @@ Tables will be written to.}
 \item{steps}{Options include c("prepare_cpt4",
 "drop_tables","copy", "indices", "constraints", "log").
 Each step corresponds to the function used and may be
-independently executed. \code{\link{prepare_cpt4}} is not
-included in default because of its tendency to run slow
-and the java script used to reconstitute the CPT4 needs
-to run uninterrupted or else the resulting CONCEPT.csv
-file will be damaged. Therefore, it is advised to
-reconstitute CPT4 separately from the Command Line or
-using the aforementioned function in this package though
-the option to do it as part of \code{\link{run_setup}} is
-available.}
+independently executed.}
 
 \item{path_to_csvs}{Path to folder containing the
 unpacked vocabularies as csv files, downloaded as a zip
