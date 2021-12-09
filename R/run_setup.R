@@ -24,7 +24,7 @@
 
 run_setup <-
   function(conn,
-           conn_fun,
+           conn_fun = "pg13::local_connect()",
            target_schema = "omop_vocabulary",
            steps = c(
              "drop_tables",
@@ -38,7 +38,7 @@ run_setup <-
              c("omop_atc_classification"),
            path_to_csvs,
            release_version,
-           umls_api_key,
+           umls_api_key = Sys.getenv("UMLS_API_KEY"),
            verbose = TRUE,
            render_sql = TRUE) {
 
@@ -90,7 +90,7 @@ run_setup <-
     }
 
     # Checking Connection
-    if (!missing(conn_fun)) {
+    if (missing(conn)) {
       conn <- eval(rlang::parse_expr(conn_fun))
       on.exit(pg13::dc(
         conn = conn,

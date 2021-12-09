@@ -34,7 +34,7 @@
 
 prepare_cpt4 <-
   function(path_to_csvs,
-           umls_api_key,
+           umls_api_key = Sys.getenv("UMLS_API_KEY"),
            verbose = TRUE) {
 
     stopifnot(length(umls_api_key)==1)

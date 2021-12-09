@@ -1,3 +1,9 @@
+# setupAthena 0.7.0.9000  
+
+* Added default values for `umls_api_key` and `conn_fun` 
+arguments  
+
+
 # setupAthena 0.7.0 (2021-12-09)  
 
 * Added steps in `prepare_cpt4` where the 

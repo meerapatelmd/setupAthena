@@ -4,7 +4,11 @@
 \alias{prepare_cpt4}
 \title{Reconstitute CPT4 Concepts}
 \usage{
-prepare_cpt4(path_to_csvs, umls_api_key, verbose = TRUE)
+prepare_cpt4(
+  path_to_csvs,
+  umls_api_key = Sys.getenv("UMLS_API_KEY"),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{path_to_csvs}{Path to folder containing the
