@@ -27,7 +27,6 @@ run_setup <-
            conn_fun = "pg13::local_connect()",
            target_schema = "omop_vocabulary",
            steps = c(
-             "prepare_cpt4",
              "drop_tables",
              "copy",
              "log",
