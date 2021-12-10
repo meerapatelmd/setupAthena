@@ -2,8 +2,8 @@
 
 * Added default values for `umls_api_key` and `conn_fun` 
 arguments  
-* Fixed bug with `prepare_cpt4` where processed CONCEPT.csv 
-is replaced with the raw CONCEPT.csv  
+* Changed `prepare_cpt4` because on.exit() was not behaving 
+as expected.  
 
 
 # setupAthena 0.7.0 (2021-12-09)  

@@ -48,30 +48,6 @@ prepare_cpt4 <-
     log_dir <-
       file.path(path_to_csvs, "logs")
 
-    replace_incomplete_concept <-
-      function(concept_path,
-               concept_without_cpt4_path,
-               log_dir) {
-
-        file.remove(concept_path)
-        file.rename(from = concept_without_cpt4_path,
-                    to = concept_path)
-
-
-      }
-
-    if (!file.exists(concept_without_cpt4_path)) {
-
-      file.copy(from = concept_path,
-                to   = concept_without_cpt4_path)
-
-    }
-
-    on.exit(replace_incomplete_concept(concept_path = concept_path,
-                                       concept_without_cpt4_path = concept_without_cpt4_path,
-                                       log_dir = log_dir),
-            add = FALSE)
-
     cli::cat_boxx("Reconstitute CPT4",
       float = "center"
     )
