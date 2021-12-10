@@ -56,12 +56,7 @@ prepare_cpt4 <-
         file.remove(concept_path)
         file.rename(from = concept_without_cpt4_path,
                     to = concept_path)
-        if (dir.exists(log_dir)) {
 
-          unlink(log_dir,
-                 recursive = TRUE)
-
-        }
 
       }
 
@@ -74,7 +69,8 @@ prepare_cpt4 <-
 
     on.exit(replace_incomplete_concept(concept_path = concept_path,
                                        concept_without_cpt4_path = concept_without_cpt4_path,
-                                       log_dir = log_dir))
+                                       log_dir = log_dir),
+            add = FALSE)
 
     cli::cat_boxx("Reconstitute CPT4",
       float = "center"
@@ -104,8 +100,6 @@ prepare_cpt4 <-
       cli::cat_line()
     }
 
-    on.exit(file.remove(concept_without_cpt4_path))
-
     command <-
       command %>%
       unlist() %>%
@@ -114,4 +108,8 @@ prepare_cpt4 <-
     system(command = command)
 
     cli::cat_line()
+
+
+    on.exit(file.remove(concept_without_cpt4_path),
+            add = FALSE)
   }
