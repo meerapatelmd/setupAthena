@@ -40,14 +40,6 @@ prepare_cpt4 <-
     stopifnot(length(umls_api_key)==1)
     stopifnot(umls_api_key!="")
 
-
-    concept_path <-
-      file.path(path_to_csvs, "CONCEPT.csv")
-    concept_without_cpt4_path <-
-      file.path(path_to_csvs, "CONCEPT_WITHOUT_CPT4.csv")
-    log_dir <-
-      file.path(path_to_csvs, "logs")
-
     cli::cat_boxx("Reconstitute CPT4",
       float = "center"
     )
@@ -84,8 +76,4 @@ prepare_cpt4 <-
     system(command = command)
 
     cli::cat_line()
-
-
-    on.exit(file.remove(concept_without_cpt4_path),
-            add = FALSE)
   }
