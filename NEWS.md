@@ -3,7 +3,9 @@
 * Added default values for `umls_api_key` and `conn_fun` 
 arguments  
 * Changed `prepare_cpt4` because on.exit() was not behaving 
-as expected.  
+as expected. 
+* Added conditions that warns the user if the `release_version` 
+is already logged in the database.
 
 
 # setupAthena 0.7.0 (2021-12-09)  

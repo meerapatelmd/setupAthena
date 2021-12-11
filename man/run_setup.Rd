@@ -14,7 +14,9 @@ run_setup(
   release_version,
   umls_api_key = Sys.getenv("UMLS_API_KEY"),
   verbose = TRUE,
-  render_sql = TRUE
+  render_sql = TRUE,
+  render_only = FALSE,
+  checks = ""
 )
 }
 \arguments{

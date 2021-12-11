@@ -17,8 +17,8 @@
 #' @export
 #' @importFrom rlang parse_expr
 #' @importFrom pg13 dc ls_schema drop_cascade create_schema send
-#' @importFrom cli cat_line cat_boxx
-#' @importFrom secretary typewrite
+#' @importFrom cli cat_line cat_boxx cli_alert_warning
+#' @importFrom secretary typewrite press_enter
 #' @importFrom SqlRender render
 #' @importFrom chariotViz get_version_key setup_chariotViz
 
@@ -40,7 +40,30 @@ run_setup <-
            release_version,
            umls_api_key = Sys.getenv("UMLS_API_KEY"),
            verbose = TRUE,
-           render_sql = TRUE) {
+           render_sql = TRUE,
+           render_only = FALSE,
+           checks = "") {
+
+
+    # Get current version already loaded into the database from the
+    # log
+    db_version <-
+    get_version(conn = conn,
+                conn_fun = conn_fun,
+                verbose = verbose,
+                render_sql = render_sql,
+                render_only = render_only,
+                checks = checks)
+
+    if (identical(db_version, release_version)) {
+
+      if (interactive()) {
+      cli::cli_alert_warning("The release_version '{release_version}' has already been logged. Continue? ")
+      secretary::press_enter()
+
+      }
+
+    }
 
     steps_requiring_csvs <-
       c("drop_tables",
