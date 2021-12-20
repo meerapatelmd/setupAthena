@@ -1,0 +1,535 @@
+---
+title: "028: OMOP HemOnc RDF"
+output: 
+  html_document:
+    css: style.css
+    theme: flatly
+    highlight: kate  
+    toc: yes
+    number_sections: false
+    toc_depth: 3 
+    toc_float: true 
+    collapsed: false
+    smooth_scroll: false
+    code_folding: show #or hide
+    df_print: paged
+    fig_height: 5 
+    fig_width: 7 
+    fig_caption: true
+    dev: png
+params: 
+  project_path: /Users/meerapatel/GitHub/projects/medportal-review  
+  issue_key: '028' 
+  report_title: OMOP HemOnc RDF
+  github_page_path:   
+  source_code_page_path:   
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile,
+                    encoding = encoding,
+                    output_dir =
+                      file.path(getwd(), "output"))
+  })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "##",
+  tidy = FALSE, #`styler` to use styler:style_text() to reformat code
+  tidy.opts = list(blank = FALSE, width.cutoff = 60),
+  echo = TRUE,
+  eval = TRUE,
+  cache = FALSE,
+  child = NULL, #file/s to knit and then include,
+  collapse = FALSE, #collapse all output into a single block,
+  error = FALSE, #display error messages in doc. FALSE stops render when error is thrown
+  fig.align = "center", #left, right, center, or default
+  fig.width = 7, #inches
+  fig.height = 7, #inches
+  fig.asp=0.50, #adds whitespace around images
+  include = TRUE, #include chunk?
+  message = TRUE, #display code messages?
+  warning = TRUE, #include warnings?
+  results = "markup"
+    # "asis": passthrough results
+    # "hide": do not display results 
+    # "hold": put all results below all code
+)  
+
+# If the session is interactive, the Rmd title is 
+# checked against the filename and the parameterized value, which should be the same.
+  if (interactive()) { 
+    rmd_title_by_filename <- xfun::sans_ext(basename(rstudioapi::getSourceEditorContext()$path)) 
+    rmd_title_by_params <- 
+        sprintf("%s: %s", 
+            gsub(pattern = "^'|'$", 
+                 x = params$issue_key,
+                 replacement = ""),
+            params$report_title)
+     if (rmd_title_by_filename != rmd_title_by_params) {
+       stop("Filename does not match parameterized name")
+     } else {
+     rmd_title <- rmd_title_by_filename
+     }
+     
+  } else {
+  rmd_title <- 
+    sprintf("%s: %s", 
+            gsub(pattern = "^'|'$", 
+                 x = params$issue_key,
+                 replacement = ""),
+            params$report_title)
+  }
+
+github_page  <- sprintf("%s/%s.html", params$github_page_path, rmd_title)
+source_code  <- sprintf("%s/%s.Rmd", params$source_code_page_path, rmd_title)
+issue_key    <- params$issue_key
+report_title <- params$report_title
+project_path <- path.expand(params$project_path)
+```
+
+**Last Updated On:** `r Sys.time()`  
+
+```{r setup2,eval=TRUE,message=FALSE,echo=FALSE}
+library(tidyverse)
+library(easyBakeOven)
+library(glue)
+```
+
+## Parameters  
+
+```{r params_display,eval=TRUE,message=FALSE,echo=FALSE}
+params_display <- 
+  c(params,
+    rmd_title = rmd_title, 
+    github_page = github_page, 
+    source_code = source_code)
+names(params_display) <- str_to_title(str_replace_all(names(params_display), "[_]{1}", " "))
+print_list(params_display)
+```
+
+```{r folders,eval=TRUE,echo=FALSE,results='hide',message=FALSE}
+global_data_folder  <- file.path(project_path, "data", issue_key, report_title)
+raw_folder          <- file.path(global_data_folder, "raw")
+intermediate_folder <- file.path(global_data_folder, "intermediate")
+final_folder        <- file.path(global_data_folder, "final")
+outgoing_folder     <- file.path(global_data_folder, "outgoing") 
+
+
+global_rmd_folder   <- file.path(project_path, "rmd", issue_key)
+child_rmd_folder    <- file.path(global_rmd_folder, report_title)
+
+global_img_folder   <- file.path(project_path, "img", issue_key)
+img_folder          <- file.path(global_img_folder, report_title)
+cache_folder        <- file.path(project_path, "cache", issue_key, report_title, "/")
+
+sapply(c(global_data_folder,
+         raw_folder,
+         intermediate_folder,
+         final_folder,
+         outgoing_folder,
+         global_rmd_folder,
+         child_rmd_folder,
+         global_img_folder,
+         img_folder,
+         cache_folder),
+       create_path)
+       
+knitr::opts_chunk$set(
+  cache.path = cache_folder
+)  
+```
+
+# Summary  
+
+Convert the ATC and RxNorm classification in the OMOP vocabularies to RDF.  
+
+
+# Workflow  
+
+```{r}
+library(rdflib)
+library(rdfR)
+library(chariot)
+
+conn_fun <- "pg13::local_connect()"
+```
+
+```{r}
+get_athena_version <-
+  function(conn,
+           conn_fun,
+           ...) {
+
+    sql_statement <-
+      "SELECT
+          'OMOP Vocabularies' AS resource,
+          sa_datetime AS load_datetime,
+          sa_release_version AS version
+       FROM public.setup_athena_log
+       WHERE sa_datetime IN (SELECT max(sa_datetime) from public.setup_athena_log);"
+
+    output <-
+      pg13::query(conn = conn,
+                  conn_fun = conn_fun,
+                  sql_statement = sql_statement,
+                  ...)
+
+    output
+  }
+
+omop_version <- 
+  get_athena_version(conn_fun = conn_fun)
+omop_version
+```
+
+```{r}
+drug_rdf <- 
+  initialize_rdf(name = "OHDSI OMOP HemOnc Ontology",
+                 base_uri = "http://omop/hemonc",
+                 version = "1.0.0",
+                 comment = "HemOnc ontology as it is available at athena.ohdsi.org.")
+
+
+base_uri <- query_base_uri(drug_rdf)
+drug_rdf <- 
+  append_annotation_properties(rdf = drug_rdf, 
+                               base_uri = base_uri,
+                               "load_datetime",
+                               "version")
+
+
+add_annotation_property_value(rdf = drug_rdf,
+                              entity = base_uri,
+                              annotation_property = "load_datetime",
+                              value = omop_version$load_datetime)
+
+add_annotation_property_value(rdf = drug_rdf,
+                              entity = base_uri,
+                              annotation_property = "version",
+                              value = omop_version$version)
+drug_rdf
+```
+
+
+```{r}
+classes <- 
+queryAthena("SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'HemOnc' AND standard_concept = 'C' AND invalid_reason IS NULL;")
+classes
+```
+
+```{r}
+classes2 <- 
+  classes %>% 
+  mutate(class_id = sprintf("%s/%s", base_uri,concept_id)) %>% 
+  mutate(class_label = sprintf("%s [%s %s]", concept_name, vocabulary_id, concept_code))
+
+classes2
+```
+
+```{r}
+drug_rdf2 <- 
+  append_annotation_properties(
+    rdf = drug_rdf, 
+    base_uri = base_uri, 
+    colnames(classes)
+  )
+drug_rdf2
+```
+
+```{r}
+drug_rdf3 <- 
+df_add_classes(
+  rdf = drug_rdf2,
+  data = classes2,
+  class_id_col = class_id,
+  class_label_col = class_label
+)
+drug_rdf3
+```
+
+```{r}
+classes3 <- 
+classes2 %>% 
+  select(-class_label) %>% 
+  mutate_all(as.character) %>%
+  pivot_longer(cols = !class_id,
+               names_to = "annotation_property_label",
+               values_drop_na = TRUE)
+
+classes3
+```
+
+```{r}
+classes4 <- 
+  classes3 %>% 
+  split(.$annotation_property_label) %>% 
+  map(select, 
+      -annotation_property_label)
+
+classes4
+```
+
+```{r}
+drug_rdf4 <- 
+  drug_rdf3
+for (i in seq_along(classes4)) {
+  drug_rdf4 <-
+  df_add_annotation_property_value(
+    rdf = drug_rdf4,
+    data = classes4[[i]],
+    entity_col = class_id,
+    annotation_property_label = names(classes4)[i],
+    value_col = value
+  )
+}
+```
+
+```{r}
+subclassof <- 
+queryAthena("SELECT ca.* FROM omop_vocabulary.concept_ancestor ca INNER JOIN omop_vocabulary.concept a ON a.concept_id = ca.ancestor_concept_id INNER JOIN omop_vocabulary.concept d ON d.concept_id = ca.descendant_concept_id WHERE a.vocabulary_id = 'HemOnc' AND a.standard_concept = 'C' AND a.invalid_reason IS NULL AND d.vocabulary_id = 'HemOnc' AND d.standard_concept = 'C' AND d.invalid_reason IS NULL;")
+subclassof
+```
+
+```{r}
+subclassof %>% 
+  dplyr::filter(ancestor_concept_id == descendant_concept_id) %>% 
+  distinct(min_levels_of_separation, max_levels_of_separation)
+```
+
+```{r}
+subclassof2 <- 
+  subclassof %>% 
+  dplyr::filter(ancestor_concept_id != descendant_concept_id)
+subclassof2
+```
+
+```{r}
+subclassof2 %>% 
+  dplyr::filter(min_levels_of_separation != max_levels_of_separation) %>% 
+  distinct(min_levels_of_separation,
+           max_levels_of_separation)
+```
+
+```{r}
+subclassof2 %>% 
+  count(min_levels_of_separation)
+
+subclassof2 %>% 
+  count(max_levels_of_separation)
+```
+
+
+```{r}
+subclassof3 <- 
+  subclassof2 %>% 
+  transmute(ancestor_concept_id, 
+            descendant_concept_id,
+            level = min_levels_of_separation)
+subclassof3
+```
+
+```{r}
+subclassof4 <- 
+  subclassof3 %>% 
+  mutate_at(vars(ancestor_concept_id,
+                 descendant_concept_id),
+            ~sprintf("%s/%s", base_uri,.))
+subclassof4
+```
+
+```{r}
+subclassof5 <- 
+  subclassof4 %>% 
+  pivot_wider(names_from = level,
+              values_from = descendant_concept_id,
+              values_fn = list) %>% 
+  select(ancestor_concept_id,
+         as.character(1:4))
+subclassof5
+```
+
+```{r}
+drug_rdf5 <- drug_rdf4
+for (i in 1:4) {
+  
+  if (i == 1) {
+    
+    col1 <- "ancestor_concept_id"
+    col2 <- as.character(i)
+    
+  } else {
+    
+    
+    col1 <- as.character(i-1)
+    col2 <- as.character(i)
+    
+    
+  }
+  
+  
+  subclassof6 <- 
+  subclassof5 %>% 
+    select(all_of(c(col1, col2))) %>%
+    unnest(all_of(col2)) 
+  
+  colnames(subclassof6) <- 
+    c("parent_id", "child_id")
+  
+  drug_rdf5 <-
+  df_add_subclassof(
+    rdf = drug_rdf5,
+    data = subclassof6,
+    parent_class_id_col = parent_id, 
+    child_class_id_col = child_id
+  )
+  
+}
+
+drug_rdf5
+```
+
+```{r}
+individuals <- 
+queryAthena("SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id IN ('HemOnc') AND standard_concept <> 'C' AND  invalid_reason IS NULL;")
+individuals
+```
+
+```{r}
+individuals2 <- 
+  individuals %>% 
+  mutate(individual_id = sprintf("%s/%s", base_uri,concept_id)) %>% 
+  mutate(individual_label = sprintf("%s [%s %s]", concept_name, vocabulary_id, concept_code))
+
+individuals2
+```
+
+
+```{r}
+drug_rdf6 <- drug_rdf5
+drug_rdf6 <-
+df_add_individuals(
+  rdf = drug_rdf6,
+  data = individuals2,
+  individual_id_col = individual_id,
+  individual_label_col = individual_label
+)
+```
+
+
+```{r}
+individuals3 <- 
+individuals2 %>% 
+  select(-individual_label) %>% 
+  mutate_all(as.character) %>%
+  pivot_longer(cols = !individual_id,
+               names_to = "annotation_property_label",
+               values_drop_na = TRUE)
+
+individuals3
+```
+
+```{r}
+individuals4 <- 
+  individuals3 %>% 
+  split(.$annotation_property_label) %>% 
+  map(select, 
+      -annotation_property_label)
+
+individuals4
+```
+
+```{r}
+drug_rdf7 <- drug_rdf6
+for (i in seq_along(individuals4)) {
+  drug_rdf7 <-
+  df_add_annotation_property_value(
+    rdf = drug_rdf7,
+    data = individuals4[[i]],
+    entity_col = individual_id,
+    annotation_property_label = names(individuals4)[i],
+    value_col = value
+  )
+}
+```
+
+```{r}
+individual_classes <- 
+queryAthena(
+  "
+  SELECT ca.* 
+  FROM omop_vocabulary.concept_ancestor ca 
+  INNER JOIN 
+    (SELECT concept_id 
+    FROM omop_vocabulary.concept rx 
+    WHERE 
+      rx.vocabulary_id IN ('HemOnc') AND 
+      rx.standard_concept <> 'C' AND 
+      rx.invalid_reason IS NULL) c 
+  ON c.concept_id = ca.descendant_concept_id 
+  INNER JOIN 
+    (
+    SELECT concept_id 
+    FROM omop_vocabulary.concept 
+    WHERE 
+      vocabulary_id IN ('HemOnc') AND 
+      standard_concept = 'C' AND 
+      invalid_reason IS NULL
+    ) atc 
+  ON atc.concept_id = ca.ancestor_concept_id;")
+individual_classes
+```
+
+```{r}
+individual_classes %>% 
+  distinct(min_levels_of_separation,
+           max_levels_of_separation)
+```
+
+```{r}
+individual_classes %>% 
+  dplyr::filter(min_levels_of_separation == 0, 
+                max_levels_of_separation == 0)
+```
+
+
+```{r}
+individual_classes2 <- 
+  individual_classes %>% 
+  transmute(ancestor_concept_id,
+            descendant_concept_id,
+            level = max_levels_of_separation) %>% 
+  dplyr::filter(level %in% c(0, 1)) %>% 
+  select(ancestor_concept_id,
+         descendant_concept_id) %>% 
+  mutate_all(~sprintf("%s/%s", base_uri, .))
+individual_classes2
+```
+
+```{r}
+drug_rdf8 <- drug_rdf7
+drug_rdf8 <-
+df_add_individual_class(
+  rdf = drug_rdf8,
+  data = individual_classes2,
+  individual_id_col = descendant_concept_id,
+  class_id_col = ancestor_concept_id
+)
+```
+
+```{r}
+final_rdf <- 
+  drug_rdf8
+
+rdf_files <- 
+  list(intermediate = file.path(intermediate_folder, "OMOP HemOnc.rdf"),
+       final        = file.path(final_folder, "OMOP HemOnc.rdf"))
+  
+
+if (!file.exists(rdf_files$final)) {
+  
+  rdf_files %>% 
+    map(~write_rdf(final_rdf, .))
+
+}
+```
+
