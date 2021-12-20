@@ -1,3 +1,19 @@
+CREATE TABLE IF NOT EXISTS public.process_omop_neo4j_log (
+
+    process_start_datetime timestamp without time zone,
+
+    process_stop_datetime timestamp without time zone,
+
+    omop_version character varying(255),
+
+    target_table character varying(255),
+
+    target_row_ct numeric
+
+);
+
+
+
 CREATE OR REPLACE FUNCTION get_omop_neo4j_sql(label_col varchar, id_col varchar, name_col varchar)
 RETURNS varchar
 AS '
@@ -123,6 +139,30 @@ CREATE TABLE omop_neo4j.pre_node AS (
 glue(sql_template, .open = ''<<'', .close = ''>>'')
 ' LANGUAGE plr;
 
+CREATE OR REPLACE FUNCTION check_if_omop_neo4j_requires_processing(omop_version varchar, target_table varchar)
+RETURNS boolean
+AS '
+library(setupAthena) 
+library(glue)  
+library(pg13)
+current_version <- get_version()
+sql_statement <- 
+glue("SELECT * FROM public.process_omop_neo4j_log WHERE omop_version = ''<<omop_version>>'' AND target_table = ''<<target_table>>'';", 
+.open = ''<<'', .close = ''>>'')
+df <- 
+query(sql_statement = sql_statement)
+nrow(df) == 0
+
+' LANGUAGE plr;
+
+CREATE OR REPLACE FUNCTION log_omop_neo4j_processing(omop_version varchar, target_table varchar, start_time timestamp, stop_time timestamp)
+RETURNS void 
+AS '
+gl
+
+' LANGUAGE plr;
+
+SELECT check_if_omop_neo4j_requires_processing('test', 'test');
 
 DO 
 $$
