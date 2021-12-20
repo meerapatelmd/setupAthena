@@ -1,7 +1,6 @@
-CREATE OR REPLACE FUNCTION setup_omop_neo4j(label_col varchar, id_col varchar, name_col varchar)
+CREATE OR REPLACE FUNCTION get_omop_neo4j_sql(label_col varchar, id_col varchar, name_col varchar)
 RETURNS varchar
 AS '
-library(pg13)
 library(glue)
 
 sql_template <-
@@ -48,7 +47,7 @@ SELECT
   c.valid_start_date,
   c.valid_end_date,
   c.invalid_reason,
-  STRING_AGG(cs.concept_synonym_name, '|') AS concept_synonyms,
+  STRING_AGG(cs.concept_synonym_name, ''|'') AS concept_synonyms,
   v.vocabulary_name,
   v.vocabulary_reference,
   v.vocabulary_version
@@ -102,9 +101,9 @@ FROM omop_neo4j.edge e
 DROP TABLE IF EXISTS omop_neo4j.pre_node_header;
 CREATE TABLE omop_neo4j.pre_node_header AS (
   SELECT
-    @label_col AS label_col,
-    @id_col    AS id_col,
-    @name_col  AS name_col,
+    <<label_col>> AS label_col,
+    <<id_col>>    AS id_col,
+    <<name_col>>  AS name_col,
     n.*
   FROM omop_neo4j.node n
   LIMIT 5
@@ -113,11 +112,26 @@ CREATE TABLE omop_neo4j.pre_node_header AS (
 DROP TABLE IF EXISTS omop_neo4j.pre_node;
 CREATE TABLE omop_neo4j.pre_node AS (
   SELECT
-    @label_col AS label_col,
-    @id_col    AS id_col,
-    @name_col  AS name_col,
+    <<label_col>> AS label_col,
+    <<id_col>>    AS id_col,
+    <<name_col>>  AS name_col,
     n.*
   FROM omop_neo4j.node n
 );
 "
+
+glue(sql_template, .open = ''<<'', .close = ''>>'')
 ' LANGUAGE plr;
+
+
+DO 
+$$
+DECLARE 
+  	sql_statement varchar;
+BEGIN
+	SELECT get_omop_neo4j_sql('{label_col}', '{id_col}', '{name_col}') INTO sql_statement; 
+	
+	EXECUTE sql_statement;
+END;
+$$
+;
