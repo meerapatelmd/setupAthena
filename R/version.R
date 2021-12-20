@@ -3,6 +3,7 @@
 #' @rdname get_version
 #' @export
 #' @importFrom pg13 query
+
 get_version <-
         function(conn,
                  conn_fun = "pg13::local_connect()",
