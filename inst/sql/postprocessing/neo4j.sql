@@ -512,6 +512,8 @@ END;
 $$
 ;
 
+COMMIT;
+
 -- Create Pre-Node Header Table
 DO
 $$
@@ -586,6 +588,9 @@ END;
 $$
 ;
 
+COMMIT;
+
+
 -- Create Pre-Node Table
 DO
 $$
@@ -614,7 +619,7 @@ BEGIN
   	PERFORM notify_start('processing PRE_NODE');
 
         DROP TABLE IF EXISTS omop_neo4j.pre_node;
-        CREATE TABLE omop_neo4j.pre_node_header AS (
+        CREATE TABLE omop_neo4j.pre_node AS (
           SELECT
             domain_id AS label_col,
             concept_id   AS id_col,
