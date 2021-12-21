@@ -247,8 +247,6 @@ BEGIN
 			  target_table,
 			  target_rows);
 
-		COMMIT;
-
 
 		PERFORM notify_timediff('processing EDGE', start_timestamp, stop_timestamp);
    END IF;
@@ -354,8 +352,6 @@ GROUP BY
 			  target_table,
 			  target_rows);
 
-		COMMIT;
-
 
 		PERFORM notify_timediff('processing NODE', start_timestamp, stop_timestamp);
    END IF;
@@ -431,8 +427,6 @@ LIMIT 5
 			  omop_version,
 			  target_table,
 			  target_rows);
-
-		COMMIT;
 
 
 		PERFORM notify_timediff('processing PRE_EDGE_HEADER', start_timestamp, stop_timestamp);
@@ -510,8 +504,6 @@ BEGIN
 			  target_table,
 			  target_rows);
 
-		COMMIT;
-
 
 		PERFORM notify_timediff('processing PRE_EDGE', start_timestamp, stop_timestamp);
    END IF;
@@ -586,8 +578,6 @@ BEGIN
 			  target_table,
 			  target_rows);
 
-		COMMIT;
-
 
 		PERFORM notify_timediff('processing PRE_NODE_HEADER', start_timestamp, stop_timestamp);
    END IF;
@@ -660,8 +650,6 @@ BEGIN
 			  omop_version,
 			  target_table,
 			  target_rows);
-
-		COMMIT;
 
 
 		PERFORM notify_timediff('processing PRE_NODE', start_timestamp, stop_timestamp);
