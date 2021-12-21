@@ -254,6 +254,7 @@ END;
 $$
 ;
 
+COMMIT;
 
 -- Create Node Table
 DO
@@ -295,7 +296,7 @@ SELECT
   c.valid_start_date,
   c.valid_end_date,
   c.invalid_reason,
-  STRING_AGG(cs.concept_synonym_name, ''|'') AS concept_synonyms,
+  STRING_AGG(cs.concept_synonym_name, '|') AS concept_synonyms,
   v.vocabulary_name,
   v.vocabulary_reference,
   v.vocabulary_version
