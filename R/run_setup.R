@@ -44,9 +44,23 @@ run_setup <-
            render_only = FALSE,
            checks = "") {
 
+    # Checking Connection
+    if (missing(conn)) {
+      conn <- eval(rlang::parse_expr(conn_fun))
+      on.exit(pg13::dc(
+        conn = conn,
+        verbose = verbose
+      ),
+      add = TRUE,
+      after = TRUE
+      )
+    }
 
     # Get current version already loaded into the database from the
     # log
+    if (pg13::table_exists(conn = conn,
+                           schema = "public",
+                           table = "setup_athena_log")) {
     db_version <-
     get_version(conn = conn,
                 conn_fun = conn_fun,
@@ -62,6 +76,8 @@ run_setup <-
       secretary::press_enter()
 
       }
+
+    }
 
     }
 
@@ -112,17 +128,6 @@ run_setup <-
       }
     }
 
-    # Checking Connection
-    if (missing(conn)) {
-      conn <- eval(rlang::parse_expr(conn_fun))
-      on.exit(pg13::dc(
-        conn = conn,
-        verbose = verbose
-      ),
-      add = TRUE,
-      after = TRUE
-      )
-    }
 
 
     if ("drop_tables" %in% steps) {
@@ -366,6 +371,41 @@ run_setup <-
       )
     }
 
+    if ("omop_atc_classification" %in% postprocessing) {
+
+      postprocessing_file <-
+        system.file(package = "setupAthena",
+                    "sql",
+                    "postprocessing",
+                    "omop_atc_classification.sql")
+
+      sql_statement <-
+        paste(readLines(postprocessing_file),
+              collapse = "\n")
+
+      rs <-
+        tryCatch(
+          pg13::send(
+            conn = conn,
+            sql_statement = sql_statement,
+            verbose = verbose,
+            render_sql = render_sql
+          ),
+          error = function(e) "Error"
+        )
+
+      if (identical(rs, "Error")) {
+
+        secretary::typewrite(
+          cli::cli_alert_danger("Postprocessing job '{postprocessing[i]}' failed.")
+        )
+
+
+      }
+
+    }
+
+
 
 
     if ("constraints" %in% steps) {
@@ -384,42 +424,6 @@ run_setup <-
         render_sql = render_sql
       )
     }
-
-
-    if ("omop_atc_classification" %in% postprocessing) {
-
-      postprocessing_file <-
-      system.file(package = "setupAthena",
-                  "sql",
-                  "postprocessing",
-                  "omop_atc_classification.sql")
-
-      sql_statement <-
-        paste(readLines(postprocessing_file),
-              collapse = "\n")
-
-      rs <-
-      tryCatch(
-        pg13::send(
-          conn = conn,
-          sql_statement = sql_statement,
-          verbose = verbose,
-          render_sql = render_sql
-        ),
-        error = function(e) "Error"
-      )
-
-      if (identical(rs, "Error")) {
-
-        secretary::typewrite(
-        cli::cli_alert_danger("Postprocessing job '{postprocessing[i]}' failed.")
-        )
-
-
-      }
-
-    }
-
 
     if ("chariotviz_cache" %in% steps) {
 
