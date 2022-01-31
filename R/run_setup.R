@@ -397,7 +397,7 @@ run_setup <-
       if (identical(rs, "Error")) {
 
         secretary::typewrite(
-          cli::cli_alert_danger("Postprocessing job '{postprocessing[i]}' failed.")
+          cli::cli_alert_danger("`omop_atc_classification` table processing failed.")
         )
 
 
