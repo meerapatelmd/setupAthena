@@ -1,0 +1,224 @@
+
+
+-- classes 
+SELECT * 
+FROM omop_vocabulary.concept 
+WHERE 
+  vocabulary_id = 'HemOnc' 
+  AND standard_concept = 'C' 
+  AND invalid_reason IS NULL;")
+
+
+
+-- subclasses <- 
+SELECT ca.*, ca.min_levels_of_separation AS level 
+FROM omop_vocabulary.concept_ancestor ca 
+INNER JOIN omop_vocabulary.concept a 
+ON a.concept_id = ca.ancestor_concept_id 
+INNER JOIN omop_vocabulary.concept d 
+ON d.concept_id = ca.descendant_concept_id 
+WHERE 
+  a.vocabulary_id = 'HemOnc' 
+  AND a.standard_concept = 'C' 
+  AND a.invalid_reason IS NULL 
+  AND d.vocabulary_id = 'HemOnc' 
+  AND d.standard_concept = 'C' 
+  AND d.invalid_reason IS NULL 
+  AND ca.ancestor_concept_id <> ca.descendant_concept_id;
+
+```{r}
+subclassof5 <- 
+  subclassof4 %>% 
+  pivot_wider(names_from = level,
+              values_from = descendant_concept_id,
+              values_fn = list) %>% 
+  select(ancestor_concept_id,
+         as.character(1:4))
+subclassof5
+```
+
+```{r}
+drug_rdf5 <- drug_rdf4
+for (i in 1:4) {
+  
+  if (i == 1) {
+    
+    col1 <- "ancestor_concept_id"
+    col2 <- as.character(i)
+    
+  } else {
+    
+    
+    col1 <- as.character(i-1)
+    col2 <- as.character(i)
+    
+    
+  }
+  
+  
+  subclassof6 <- 
+  subclassof5 %>% 
+    select(all_of(c(col1, col2))) %>%
+    unnest(all_of(col2)) 
+  
+  colnames(subclassof6) <- 
+    c("parent_id", "child_id")
+  
+  drug_rdf5 <-
+  df_add_subclassof(
+    rdf = drug_rdf5,
+    data = subclassof6,
+    parent_class_id_col = parent_id, 
+    child_class_id_col = child_id
+  )
+  
+}
+
+drug_rdf5
+```
+
+```{r}
+individuals <- 
+queryAthena("SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id IN ('HemOnc') AND standard_concept <> 'C' AND  invalid_reason IS NULL;")
+individuals
+```
+
+```{r}
+individuals2 <- 
+  individuals %>% 
+  mutate(individual_id = sprintf("%s/%s", base_uri,concept_id)) %>% 
+  mutate(individual_label = sprintf("%s [%s %s]", concept_name, vocabulary_id, concept_code))
+
+individuals2
+```
+
+
+```{r}
+drug_rdf6 <- drug_rdf5
+drug_rdf6 <-
+df_add_individuals(
+  rdf = drug_rdf6,
+  data = individuals2,
+  individual_id_col = individual_id,
+  individual_label_col = individual_label
+)
+```
+
+
+```{r}
+individuals3 <- 
+individuals2 %>% 
+  select(-individual_label) %>% 
+  mutate_all(as.character) %>%
+  pivot_longer(cols = !individual_id,
+               names_to = "annotation_property_label",
+               values_drop_na = TRUE)
+
+individuals3
+```
+
+```{r}
+individuals4 <- 
+  individuals3 %>% 
+  split(.$annotation_property_label) %>% 
+  map(select, 
+      -annotation_property_label)
+
+individuals4
+```
+
+```{r}
+drug_rdf7 <- drug_rdf6
+for (i in seq_along(individuals4)) {
+  drug_rdf7 <-
+  df_add_annotation_property_value(
+    rdf = drug_rdf7,
+    data = individuals4[[i]],
+    entity_col = individual_id,
+    annotation_property_label = names(individuals4)[i],
+    value_col = value
+  )
+}
+```
+
+```{r}
+individual_classes <- 
+queryAthena(
+  "
+  SELECT ca.* 
+  FROM omop_vocabulary.concept_ancestor ca 
+  INNER JOIN 
+    (SELECT concept_id 
+    FROM omop_vocabulary.concept rx 
+    WHERE 
+      rx.vocabulary_id IN ('HemOnc') AND 
+      rx.standard_concept <> 'C' AND 
+      rx.invalid_reason IS NULL) c 
+  ON c.concept_id = ca.descendant_concept_id 
+  INNER JOIN 
+    (
+    SELECT concept_id 
+    FROM omop_vocabulary.concept 
+    WHERE 
+      vocabulary_id IN ('HemOnc') AND 
+      standard_concept = 'C' AND 
+      invalid_reason IS NULL
+    ) atc 
+  ON atc.concept_id = ca.ancestor_concept_id;")
+individual_classes
+```
+
+```{r}
+individual_classes %>% 
+  distinct(min_levels_of_separation,
+           max_levels_of_separation)
+```
+
+```{r}
+individual_classes %>% 
+  dplyr::filter(min_levels_of_separation == 0, 
+                max_levels_of_separation == 0)
+```
+
+
+```{r}
+individual_classes2 <- 
+  individual_classes %>% 
+  transmute(ancestor_concept_id,
+            descendant_concept_id,
+            level = max_levels_of_separation) %>% 
+  dplyr::filter(level %in% c(0, 1)) %>% 
+  select(ancestor_concept_id,
+         descendant_concept_id) %>% 
+  mutate_all(~sprintf("%s/%s", base_uri, .))
+individual_classes2
+```
+
+```{r}
+drug_rdf8 <- drug_rdf7
+drug_rdf8 <-
+df_add_individual_class(
+  rdf = drug_rdf8,
+  data = individual_classes2,
+  individual_id_col = descendant_concept_id,
+  class_id_col = ancestor_concept_id
+)
+```
+
+```{r}
+final_rdf <- 
+  drug_rdf8
+
+rdf_files <- 
+  list(intermediate = file.path(intermediate_folder, "OMOP HemOnc.rdf"),
+       final        = file.path(final_folder, "OMOP HemOnc.rdf"))
+  
+
+if (!file.exists(rdf_files$final)) {
+  
+  rdf_files %>% 
+    map(~write_rdf(final_rdf, .))
+
+}
+```
+

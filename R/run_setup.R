@@ -386,13 +386,13 @@ run_setup <-
     }
 
 
-    for (i in seq_along(postprocessing)) {
+    if ("omop_atc_classification" %in% postprocessing) {
 
       postprocessing_file <-
       system.file(package = "setupAthena",
                   "sql",
                   "postprocessing",
-                  sprintf("%s.sql", postprocessing[i]))
+                  "omop_atc_classification.sql")
 
       sql_statement <-
         paste(readLines(postprocessing_file),
