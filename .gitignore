@@ -5,3 +5,7 @@
 inst/doc
 Meta
 Run.R
+tmp/*
+dev/*
+
+
