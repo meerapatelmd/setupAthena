@@ -1,3 +1,4 @@
+-- Log Table
 CREATE TABLE IF NOT EXISTS public.process_omop_neo4j_log (
     process_start_datetime timestamp without time zone,
     process_stop_datetime timestamp without time zone,
@@ -7,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.process_omop_neo4j_log (
 
 );
 
+-- Functions
 create or replace function get_log_timestamp()
 returns timestamp without time zone
 language plpgsql
@@ -30,7 +32,7 @@ $$
 declare
 	omop_version varchar;
 begin
-	SELECT sa_version
+	SELECT sa_release_version
 	INTO omop_version
 	FROM public.setup_athena_log
 	WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log);
@@ -160,7 +162,7 @@ $$
 
 
 -- Create Schema if doesn't exist
-CREATE SCHEMA IF NOT EXISTS omop_neo4j;
+CREATE SCHEMA IF NOT EXISTS process_omop_neo4j;
 
 
 -- Create Edge Table
@@ -169,7 +171,7 @@ $$
 DECLARE
   omop_version varchar;
   requires_processing boolean;
-  target_table varchar := 'edge';
+  target_table varchar := 'omop_to_edge';
   target_rows bigint;
   start_timestamp timestamp;
   stop_timestamp timestamp;
@@ -188,10 +190,10 @@ BEGIN
   	INTO start_timestamp
   	;
 
-  	PERFORM notify_start('processing EDGE');
+  	PERFORM notify_start('processing OMOP_TO_EDGE');
 
-        DROP TABLE IF EXISTS omop_neo4j.edge;
-        CREATE TABLE omop_neo4j.edge (
+        DROP TABLE IF EXISTS process_omop_neo4j.omop_to_edge;
+        CREATE TABLE process_omop_neo4j.omop_to_edge (
                 concept_id_1			        INTEGER			  NOT NULL,
                 concept_id_2			        INTEGER			  NOT NULL,
                 relationship_id		        VARCHAR(20)	  NOT NULL,
@@ -204,7 +206,7 @@ BEGIN
                 reverse_relationship_name VARCHAR(255)  NOT NULL
         );
 
-        INSERT INTO omop_neo4j.edge
+        INSERT INTO process_omop_neo4j.omop_to_edge
         SELECT
 	        cr.*,
 	        r.relationship_name,
@@ -218,14 +220,14 @@ BEGIN
         ON r.reverse_relationship_id = rr.relationship_id
         ;
 
-        PERFORM notify_completion('processing EDGE');
+        PERFORM notify_completion('processing OMOP_TO_EDGE');
 
 		SELECT get_log_timestamp()
 		INTO stop_timestamp
 		;
 
 
-		SELECT get_row_count('omop_neo4j.edge')
+		SELECT get_row_count('process_omop_neo4j.omop_to_edge')
 		INTO target_rows
 		;
 
@@ -248,7 +250,7 @@ BEGIN
 			  target_rows);
 
 
-		PERFORM notify_timediff('processing EDGE', start_timestamp, stop_timestamp);
+		PERFORM notify_timediff('processing OMOP_TO_EDGE', start_timestamp, stop_timestamp);
    END IF;
 END;
 $$
@@ -262,7 +264,7 @@ $$
 DECLARE
   omop_version varchar;
   requires_processing boolean;
-  target_table varchar := 'node';
+  target_table varchar := 'omop_to_node';
   target_rows bigint;
   start_timestamp timestamp;
   stop_timestamp timestamp;
@@ -281,10 +283,10 @@ BEGIN
   	INTO start_timestamp
   	;
 
-  	PERFORM notify_start('processing NODE');
+  	PERFORM notify_start('processing OMOP_TO_NODE');
 
-        DROP TABLE IF EXISTS omop_neo4j.node;
-CREATE TABLE omop_neo4j.node AS (
+        DROP TABLE IF EXISTS process_omop_neo4j.omop_to_node;
+CREATE TABLE process_omop_neo4j.omop_to_node AS (
 SELECT
   c.concept_id,
   c.concept_name,
@@ -324,6 +326,310 @@ GROUP BY
 )
 ;
 
+        PERFORM notify_completion('processing OMOP_TO_NODE');
+
+		SELECT get_log_timestamp()
+		INTO stop_timestamp
+		;
+
+
+		SELECT get_row_count('process_omop_neo4j.omop_to_node')
+		INTO target_rows
+		;
+
+
+		EXECUTE
+		  format(
+		    '
+			INSERT INTO public.process_omop_neo4j_log
+			VALUES (
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'');
+			',
+			  start_timestamp,
+			  stop_timestamp,
+			  omop_version,
+			  target_table,
+			  target_rows);
+
+
+		PERFORM notify_timediff('processing OMOP_TO_NODE', start_timestamp, stop_timestamp);
+   END IF;
+END;
+$$
+;
+
+
+-- Create Edge Header Table
+DO
+$$
+DECLARE
+  omop_version varchar;
+  requires_processing boolean;
+  target_table varchar := 'edge_header';
+  target_rows bigint;
+  start_timestamp timestamp;
+  stop_timestamp timestamp;
+
+BEGIN
+  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
+  INTO omop_version;
+
+  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
+  INTO requires_processing;
+
+
+  IF requires_processing THEN
+
+        SELECT get_log_timestamp()
+  	INTO start_timestamp
+  	;
+
+  	PERFORM notify_start('processing EDGE_HEADER');
+
+DROP TABLE IF EXISTS process_omop_neo4j.edge_header;
+CREATE TABLE process_omop_neo4j.edge_header AS (
+SELECT
+  concept_id_1    AS start_id_col,
+  concept_id_2    AS end_id_col,
+  relationship_id AS type_col,
+  e.*
+FROM process_omop_neo4j.omop_to_edge e
+LIMIT 1
+);
+
+
+        PERFORM notify_completion('processing EDGE_HEADER');
+
+		SELECT get_log_timestamp()
+		INTO stop_timestamp
+		;
+
+
+		SELECT get_row_count('process_omop_neo4j.edge_header')
+		INTO target_rows
+		;
+
+
+		EXECUTE
+		  format(
+		    '
+			INSERT INTO public.process_omop_neo4j_log
+			VALUES (
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'');
+			',
+			  start_timestamp,
+			  stop_timestamp,
+			  omop_version,
+			  target_table,
+			  target_rows);
+
+
+		PERFORM notify_timediff('processing EDGE_HEADER', start_timestamp, stop_timestamp);
+   END IF;
+END;
+$$
+;
+
+
+
+-- Create Edge Table
+DO
+$$
+DECLARE
+  omop_version varchar;
+  requires_processing boolean;
+  target_table varchar := 'edge';
+  target_rows bigint;
+  start_timestamp timestamp;
+  stop_timestamp timestamp;
+
+BEGIN
+  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
+  INTO omop_version;
+
+  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
+  INTO requires_processing;
+
+
+  IF requires_processing THEN
+
+        SELECT get_log_timestamp()
+  	INTO start_timestamp
+  	;
+
+  	PERFORM notify_start('processing EDGE');
+
+        DROP TABLE IF EXISTS process_omop_neo4j.edge;
+        CREATE TABLE process_omop_neo4j.edge AS (
+                SELECT
+                        concept_id_1    AS start_id_col,
+                        concept_id_2    AS end_id_col,
+                        relationship_id AS type_col,
+                        e.*
+        FROM process_omop_neo4j.omop_to_edge e
+        );
+
+
+        PERFORM notify_completion('processing EDGE');
+
+		SELECT get_log_timestamp()
+		INTO stop_timestamp
+		;
+
+
+		SELECT get_row_count('process_omop_neo4j.edge')
+		INTO target_rows
+		;
+
+
+		EXECUTE
+		  format(
+		    '
+			INSERT INTO public.process_omop_neo4j_log
+			VALUES (
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'');
+			',
+			  start_timestamp,
+			  stop_timestamp,
+			  omop_version,
+			  target_table,
+			  target_rows);
+
+
+		PERFORM notify_timediff('processing EDGE', start_timestamp, stop_timestamp);
+   END IF;
+END;
+$$
+;
+
+COMMIT;
+
+-- Create Node Header Table
+DO
+$$
+DECLARE
+  omop_version varchar;
+  requires_processing boolean;
+  target_table varchar := 'node_header';
+  target_rows bigint;
+  start_timestamp timestamp;
+  stop_timestamp timestamp;
+
+BEGIN
+  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
+  INTO omop_version;
+
+  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
+  INTO requires_processing;
+
+
+  IF requires_processing THEN
+
+        SELECT get_log_timestamp()
+  	INTO start_timestamp
+  	;
+
+  	PERFORM notify_start('processing NODE_HEADER');
+
+        DROP TABLE IF EXISTS process_omop_neo4j.node_header;
+        CREATE TABLE process_omop_neo4j.node_header AS (
+          SELECT
+            domain_id AS label_col,
+            concept_id   AS id_col,
+            concept_name  AS name_col,
+            n.*
+          FROM process_omop_neo4j.omop_to_node n
+          LIMIT 1
+        );
+
+        PERFORM notify_completion('processing NODE_HEADER');
+
+		SELECT get_log_timestamp()
+		INTO stop_timestamp
+		;
+
+
+		SELECT get_row_count('process_omop_neo4j.node_header')
+		INTO target_rows
+		;
+
+
+		EXECUTE
+		  format(
+		    '
+			INSERT INTO public.process_omop_neo4j_log
+			VALUES (
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'',
+			  ''%s'');
+			',
+			  start_timestamp,
+			  stop_timestamp,
+			  omop_version,
+			  target_table,
+			  target_rows);
+
+
+		PERFORM notify_timediff('processing NODE_HEADER', start_timestamp, stop_timestamp);
+   END IF;
+END;
+$$
+;
+
+COMMIT;
+
+
+-- Create Pre-Node Table
+DO
+$$
+DECLARE
+  omop_version varchar;
+  requires_processing boolean;
+  target_table varchar := 'node';
+  target_rows bigint;
+  start_timestamp timestamp;
+  stop_timestamp timestamp;
+
+BEGIN
+  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
+  INTO omop_version;
+
+  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
+  INTO requires_processing;
+
+
+  IF requires_processing THEN
+
+        SELECT get_log_timestamp()
+  	INTO start_timestamp
+  	;
+
+  	PERFORM notify_start('processing NODE');
+
+        DROP TABLE IF EXISTS process_omop_neo4j.node;
+        CREATE TABLE process_omop_neo4j.node AS (
+          SELECT
+            domain_id AS label_col,
+            concept_id   AS id_col,
+            concept_name  AS name_col,
+            n.*
+          FROM process_omop_neo4j.omop_to_node n
+        );
+
         PERFORM notify_completion('processing NODE');
 
 		SELECT get_log_timestamp()
@@ -331,7 +637,7 @@ GROUP BY
 		;
 
 
-		SELECT get_row_count('omop_neo4j.node')
+		SELECT get_row_count('process_omop_neo4j.node')
 		INTO target_rows
 		;
 
@@ -361,305 +667,5 @@ $$
 ;
 
 
--- Create Pre-Edge Header Table
-DO
-$$
-DECLARE
-  omop_version varchar;
-  requires_processing boolean;
-  target_table varchar := 'pre_edge_header';
-  target_rows bigint;
-  start_timestamp timestamp;
-  stop_timestamp timestamp;
-
-BEGIN
-  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
-  INTO omop_version;
-
-  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
-  INTO requires_processing;
-
-
-  IF requires_processing THEN
-
-        SELECT get_log_timestamp()
-  	INTO start_timestamp
-  	;
-
-  	PERFORM notify_start('processing PRE_EDGE_HEADER');
-
-DROP TABLE IF EXISTS omop_neo4j.pre_edge_header;
-CREATE TABLE omop_neo4j.pre_edge_header AS (
-SELECT
-  concept_id_1    AS start_id_col,
-  concept_id_2    AS end_id_col,
-  relationship_id AS type_col,
-  e.*
-FROM omop_neo4j.edge e
-LIMIT 5
-);
-
-
-        PERFORM notify_completion('processing PRE_EDGE_HEADER');
-
-		SELECT get_log_timestamp()
-		INTO stop_timestamp
-		;
-
-
-		SELECT get_row_count('omop_neo4j.pre_edge_header')
-		INTO target_rows
-		;
-
-
-		EXECUTE
-		  format(
-		    '
-			INSERT INTO public.process_omop_neo4j_log
-			VALUES (
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'');
-			',
-			  start_timestamp,
-			  stop_timestamp,
-			  omop_version,
-			  target_table,
-			  target_rows);
-
-
-		PERFORM notify_timediff('processing PRE_EDGE_HEADER', start_timestamp, stop_timestamp);
-   END IF;
-END;
-$$
-;
-
-
-
--- Create Pre-Edge Table
-DO
-$$
-DECLARE
-  omop_version varchar;
-  requires_processing boolean;
-  target_table varchar := 'pre_edge';
-  target_rows bigint;
-  start_timestamp timestamp;
-  stop_timestamp timestamp;
-
-BEGIN
-  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
-  INTO omop_version;
-
-  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
-  INTO requires_processing;
-
-
-  IF requires_processing THEN
-
-        SELECT get_log_timestamp()
-  	INTO start_timestamp
-  	;
-
-  	PERFORM notify_start('processing PRE_EDGE');
-
-        DROP TABLE IF EXISTS omop_neo4j.pre_edge;
-        CREATE TABLE omop_neo4j.pre_edge AS (
-                SELECT
-                        concept_id_1    AS start_id_col,
-                        concept_id_2    AS end_id_col,
-                        relationship_id AS type_col,
-                        e.*
-        FROM omop_neo4j.edge e
-        );
-
-
-        PERFORM notify_completion('processing PRE_EDGE');
-
-		SELECT get_log_timestamp()
-		INTO stop_timestamp
-		;
-
-
-		SELECT get_row_count('omop_neo4j.pre_edge')
-		INTO target_rows
-		;
-
-
-		EXECUTE
-		  format(
-		    '
-			INSERT INTO public.process_omop_neo4j_log
-			VALUES (
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'');
-			',
-			  start_timestamp,
-			  stop_timestamp,
-			  omop_version,
-			  target_table,
-			  target_rows);
-
-
-		PERFORM notify_timediff('processing PRE_EDGE', start_timestamp, stop_timestamp);
-   END IF;
-END;
-$$
-;
-
-COMMIT;
-
--- Create Pre-Node Header Table
-DO
-$$
-DECLARE
-  omop_version varchar;
-  requires_processing boolean;
-  target_table varchar := 'pre_node_header';
-  target_rows bigint;
-  start_timestamp timestamp;
-  stop_timestamp timestamp;
-
-BEGIN
-  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
-  INTO omop_version;
-
-  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
-  INTO requires_processing;
-
-
-  IF requires_processing THEN
-
-        SELECT get_log_timestamp()
-  	INTO start_timestamp
-  	;
-
-  	PERFORM notify_start('processing PRE_NODE_HEADER');
-
-        DROP TABLE IF EXISTS omop_neo4j.pre_node_header;
-        CREATE TABLE omop_neo4j.pre_node_header AS (
-          SELECT
-            domain_id AS label_col,
-            concept_id   AS id_col,
-            concept_name  AS name_col,
-            n.*
-          FROM omop_neo4j.node n
-          LIMIT 5
-        );
-
-        PERFORM notify_completion('processing PRE_NODE_HEADER');
-
-		SELECT get_log_timestamp()
-		INTO stop_timestamp
-		;
-
-
-		SELECT get_row_count('omop_neo4j.pre_node_header')
-		INTO target_rows
-		;
-
-
-		EXECUTE
-		  format(
-		    '
-			INSERT INTO public.process_omop_neo4j_log
-			VALUES (
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'');
-			',
-			  start_timestamp,
-			  stop_timestamp,
-			  omop_version,
-			  target_table,
-			  target_rows);
-
-
-		PERFORM notify_timediff('processing PRE_NODE_HEADER', start_timestamp, stop_timestamp);
-   END IF;
-END;
-$$
-;
-
-COMMIT;
-
-
--- Create Pre-Node Table
-DO
-$$
-DECLARE
-  omop_version varchar;
-  requires_processing boolean;
-  target_table varchar := 'pre_node';
-  target_rows bigint;
-  start_timestamp timestamp;
-  stop_timestamp timestamp;
-
-BEGIN
-  SELECT sa_release_version FROM public.setup_athena_log WHERE sa_datetime IN (SELECT MAX(sa_datetime) FROM public.setup_athena_log)
-  INTO omop_version;
-
-  SELECT check_if_omop_neo4j_requires_processing(omop_version, target_table)
-  INTO requires_processing;
-
-
-  IF requires_processing THEN
-
-        SELECT get_log_timestamp()
-  	INTO start_timestamp
-  	;
-
-  	PERFORM notify_start('processing PRE_NODE');
-
-        DROP TABLE IF EXISTS omop_neo4j.pre_node;
-        CREATE TABLE omop_neo4j.pre_node AS (
-          SELECT
-            domain_id AS label_col,
-            concept_id   AS id_col,
-            concept_name  AS name_col,
-            n.*
-          FROM omop_neo4j.node n
-        );
-
-        PERFORM notify_completion('processing PRE_NODE');
-
-		SELECT get_log_timestamp()
-		INTO stop_timestamp
-		;
-
-
-		SELECT get_row_count('omop_neo4j.pre_node')
-		INTO target_rows
-		;
-
-
-		EXECUTE
-		  format(
-		    '
-			INSERT INTO public.process_omop_neo4j_log
-			VALUES (
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'',
-			  ''%s'');
-			',
-			  start_timestamp,
-			  stop_timestamp,
-			  omop_version,
-			  target_table,
-			  target_rows);
-
-
-		PERFORM notify_timediff('processing PRE_NODE', start_timestamp, stop_timestamp);
-   END IF;
-END;
-$$
-;
+COPY process_omop_neo4j.node TO '/Users/meerapatel/GitHub/packages/setupAthena/dev/neo4j/{omop_version}/node.csv' DELIMITER ',' CSV HEADER;
+COPY process_omop_neo4j.edge TO '/Users/meerapatel/GitHub/packages/setupAthena/dev/neo4j/{omop_version}/edge.csv' DELIMITER ',' CSV HEADER;
