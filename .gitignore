@@ -7,5 +7,7 @@ Meta
 Run.R
 tmp/*
 dev/*
+.DS_Store
+inst/.DS_Store
 *.DS_Store*
 
