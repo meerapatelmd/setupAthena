@@ -382,6 +382,8 @@ run_setup <-
       sql_statement <-
         paste(readLines(postprocessing_file),
               collapse = "\n")
+      sql_statement <-
+        glue::glue(sql_statement)
 
       rs <-
         tryCatch(

@@ -328,14 +328,14 @@ BEGIN
 		  c2.concept_id AS atc_2nd_id,
 		  c2.concept_code AS atc_2nd_code,
 		  c2.concept_name AS atc_2nd_name
-		  FROM omop_vocabulary.concept c2
+		  FROM {schema}.concept c2
 		  INNER JOIN (
 		    SELECT *
-		    FROM omop_vocabulary.concept_relationship
+		    FROM {schema}.concept_relationship
 		    WHERE relationship_id = 'Subsumes' AND invalid_reason IS NULL) cr
 		  ON cr.concept_id_2 = c2.concept_id
 		  INNER JOIN (
-		    SELECT * FROM omop_vocabulary.concept
+		    SELECT * FROM {schema}.concept
 		    WHERE
 		      vocabulary_id = 'ATC' AND
 		      concept_class_id = 'ATC 1st' ) c1
@@ -355,10 +355,10 @@ BEGIN
 		  c2.concept_id AS atc_3rd_id,
 		  c2.concept_code AS atc_3rd_code,
 		  c2.concept_name AS atc_3rd_name
-		FROM omop_vocabulary.concept c2
-		INNER JOIN (SELECT * FROM omop_vocabulary.concept_relationship WHERE relationship_id = 'Subsumes' AND invalid_reason is null) cr
+		FROM {schema}.concept c2
+		INNER JOIN (SELECT * FROM {schema}.concept_relationship WHERE relationship_id = 'Subsumes' AND invalid_reason is null) cr
 		ON cr.concept_id_2 = c2.concept_id
-		INNER JOIN (SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'ATC' AND concept_class_id = 'ATC 2nd' AND invalid_reason is null) c1
+		INNER JOIN (SELECT * FROM {schema}.concept WHERE vocabulary_id = 'ATC' AND concept_class_id = 'ATC 2nd' AND invalid_reason is null) c1
 		ON cr.concept_id_1 = c1.concept_id
 		WHERE
 		 c2.vocabulary_id = 'ATC' AND
@@ -375,16 +375,16 @@ BEGIN
 		  c2.concept_id AS atc_4th_id,
 		  c2.concept_code AS atc_4th_code,
 		  c2.concept_name AS atc_4th_name
-		FROM omop_vocabulary.concept c2
+		FROM {schema}.concept c2
 		INNER JOIN
 		  (SELECT *
-		    FROM omop_vocabulary.concept_relationship
+		    FROM {schema}.concept_relationship
 		    WHERE relationship_id = 'Subsumes'
 		    AND invalid_reason is null) cr
 		ON cr.concept_id_2 = c2.concept_id
 		INNER JOIN
 		  (SELECT *
-		    FROM omop_vocabulary.concept
+		    FROM {schema}.concept
 		    WHERE vocabulary_id = 'ATC'
 		    AND concept_class_id = 'ATC 3rd'
 		    AND invalid_reason is null) c1
@@ -404,10 +404,10 @@ BEGIN
 		  c2.concept_id AS atc_5th_id,
 		  c2.concept_code AS atc_5th_code,
 		  c2.concept_name AS atc_5th_name
-		FROM omop_vocabulary.concept c2
-		INNER JOIN (SELECT * FROM omop_vocabulary.concept_relationship WHERE relationship_id = 'Subsumes' AND invalid_reason is null) cr
+		FROM {schema}.concept c2
+		INNER JOIN (SELECT * FROM {schema}.concept_relationship WHERE relationship_id = 'Subsumes' AND invalid_reason is null) cr
 		ON cr.concept_id_2 = c2.concept_id
-		INNER JOIN (SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'ATC' AND concept_class_id = 'ATC 4th' AND invalid_reason is null) c1
+		INNER JOIN (SELECT * FROM {schema}.concept WHERE vocabulary_id = 'ATC' AND concept_class_id = 'ATC 4th' AND invalid_reason is null) c1
 		ON cr.concept_id_1 = c1.concept_id
 		WHERE
 		 c2.vocabulary_id = 'ATC' AND
@@ -444,9 +444,9 @@ BEGIN
 		LEFT JOIN part_d d
 		ON c.atc_4th_id = d.atc_4th_id
 		INNER JOIN
-		    (SELECT * FROM omop_vocabulary.concept_relationship WHERE relationship_id = 'ATC - RxNorm pr lat' AND invalid_reason is null) cr
+		    (SELECT * FROM {schema}.concept_relationship WHERE relationship_id = 'ATC - RxNorm pr lat' AND invalid_reason is null) cr
 		ON cr.concept_id_1 = d.atc_5th_id
-		INNER JOIN (SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'RxNorm' AND concept_class_id = 'Ingredient' AND invalid_reason is null) c2
+		INNER JOIN (SELECT * FROM {schema}.concept WHERE vocabulary_id = 'RxNorm' AND concept_class_id = 'Ingredient' AND invalid_reason is null) c2
 		  ON cr.concept_id_2 = c2.concept_id
 		INNER JOIN (
 		  SELECT DISTINCT
@@ -455,10 +455,10 @@ BEGIN
 		    c2.concept_code AS rxnorm_code,
 		    c2.concept_name AS rxnorm_name,
 		    c2.concept_class_id AS rxnorm_class
-		  FROM omop_vocabulary.concept c1
-		  INNER JOIN omop_vocabulary.concept_ancestor ca
+		  FROM {schema}.concept c1
+		  INNER JOIN {schema}.concept_ancestor ca
 		  ON ca.ancestor_concept_id = c1.concept_id
-		  INNER JOIN (SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'RxNorm' AND invalid_reason is null) c2
+		  INNER JOIN (SELECT * FROM {schema}.concept WHERE vocabulary_id = 'RxNorm' AND invalid_reason is null) c2
 		  ON ca.descendant_concept_id = c2.concept_id
 		  WHERE
 		   c1.vocabulary_id = 'RxNorm' AND
@@ -472,10 +472,10 @@ BEGIN
 		    c2.concept_code AS rxnorm_code,
 		    c2.concept_name AS rxnorm_name,
 		    c2.concept_class_id AS rxnorm_class
-		  FROM omop_vocabulary.concept c1
-		  INNER JOIN omop_vocabulary.concept_ancestor ca
+		  FROM {schema}.concept c1
+		  INNER JOIN {schema}.concept_ancestor ca
 		  ON ca.descendant_concept_id = c1.concept_id
-		  INNER JOIN (SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'RxNorm' AND invalid_reason is null) c2
+		  INNER JOIN (SELECT * FROM {schema}.concept WHERE vocabulary_id = 'RxNorm' AND invalid_reason is null) c2
 		  ON ca.ancestor_concept_id = c2.concept_id
 		  WHERE
 		   c1.vocabulary_id = 'RxNorm' AND
@@ -507,9 +507,9 @@ BEGIN
 		 pin.concept_code AS in_pin_min_code,
 		 pin.concept_name AS in_pin_min_name
 		FROM omop_class.tmp_omop_atc_classification1 tmp1
-		LEFT JOIN omop_vocabulary.concept_relationship cr
+		LEFT JOIN {schema}.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_min_id
-		INNER JOIN omop_vocabulary.concept pin
+		INNER JOIN {schema}.concept pin
 		ON pin.concept_id = cr.concept_id_1
 		WHERE
 		  cr.invalid_reason IS NULL AND
@@ -538,9 +538,9 @@ BEGIN
 		 ming.concept_code AS in_pin_min_code,
 		 ming.concept_name AS in_pin_min_name
 		FROM omop_class.tmp_omop_atc_classification1 tmp1
-		LEFT JOIN omop_vocabulary.concept_relationship cr
+		LEFT JOIN {schema}.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_min_id
-		INNER JOIN omop_vocabulary.concept ming
+		INNER JOIN {schema}.concept ming
 		ON ming.concept_id = cr.concept_id_1
 		WHERE
 		  cr.invalid_reason IS NULL AND
@@ -569,7 +569,7 @@ BEGIN
 
 		SELECT COUNT(*)
 		INTO source_rows
-		FROM omop_vocabulary.concept_relationship
+		FROM {schema}.concept_relationship
 		;
 
 		SELECT COUNT(*)
