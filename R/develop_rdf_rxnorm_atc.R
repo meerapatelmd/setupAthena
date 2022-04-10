@@ -1,7 +1,7 @@
 develop_rdf_rxnorm_atc <-
   function(conn,
            conn_fun = "pg13::local_connect()",
-           schema = "omop_athena",
+           target_schema = "omop_athena",
            output_folder = "~/Desktop",
            checks = "",
            verbose = TRUE,
@@ -98,7 +98,7 @@ drug_rdf
 
 # Reading OMOP ATC classifications.
 atc_classes <-
-query(sql_statement = glue::glue("SELECT * FROM {schema}.concept WHERE vocabulary_id = 'ATC' AND standard_concept = 'C' AND invalid_reason IS NULL;"))
+query(sql_statement = glue::glue("SELECT * FROM {target_schema}.concept WHERE vocabulary_id = 'ATC' AND standard_concept = 'C' AND invalid_reason IS NULL;"))
 atc_classes
 
 atc_classes2 <-
@@ -167,7 +167,7 @@ for (i in seq_along(atc_classes4)) {
 
 
 atc_subclassof <-
-query(sql_statement = glue::glue("SELECT ca.* FROM {schema}.concept_ancestor ca INNER JOIN {schema}.concept a ON a.concept_id = ca.ancestor_concept_id INNER JOIN {schema}.concept d ON d.concept_id = ca.descendant_concept_id WHERE a.vocabulary_id = 'ATC' AND a.standard_concept = 'C' AND a.invalid_reason IS NULL AND D.vocabulary_id = 'ATC' AND d.standard_concept = 'C' AND d.invalid_reason IS NULL;"))
+query(sql_statement = glue::glue("SELECT ca.* FROM {target_schema}.concept_ancestor ca INNER JOIN {target_schema}.concept a ON a.concept_id = ca.ancestor_concept_id INNER JOIN {target_schema}.concept d ON d.concept_id = ca.descendant_concept_id WHERE a.vocabulary_id = 'ATC' AND a.standard_concept = 'C' AND a.invalid_reason IS NULL AND D.vocabulary_id = 'ATC' AND d.standard_concept = 'C' AND d.invalid_reason IS NULL;"))
 atc_subclassof
 
 
@@ -257,7 +257,7 @@ drug_rdf5
 
 
 rxnorm_individuals <-
-query(sql_statement = glue::glue("SELECT * FROM {schema}.concept WHERE vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND standard_concept <> 'C' AND concept_class_id = 'Ingredient' AND invalid_reason IS NULL;"))
+query(sql_statement = glue::glue("SELECT * FROM {target_schema}.concept WHERE vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND standard_concept <> 'C' AND concept_class_id = 'Ingredient' AND invalid_reason IS NULL;"))
 rxnorm_individuals
 
 
@@ -327,10 +327,10 @@ query(
     glue::glue(
   "
   SELECT ca.*
-  FROM {schema}.concept_ancestor ca
+  FROM {target_schema}.concept_ancestor ca
   INNER JOIN
     (SELECT concept_id
-    FROM {schema}.concept rx
+    FROM {target_schema}.concept rx
     WHERE
       rx.vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND
       rx.standard_concept <> 'C' AND
@@ -340,7 +340,7 @@ query(
   INNER JOIN
     (
     SELECT concept_id
-    FROM {schema}.concept
+    FROM {target_schema}.concept
     WHERE
       vocabulary_id IN ('ATC') AND
       standard_concept = 'C' AND
