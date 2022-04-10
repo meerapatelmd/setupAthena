@@ -2,7 +2,7 @@ develop_rdf_hemonc <-
   function(
     conn,
     conn_fun = "pg13::local_connect()",
-    sql_statement,
+    schema = "omop_athena",
     output_folder = "~/Desktop",
     checks = "",
     verbose = TRUE,
@@ -109,7 +109,7 @@ drug_rdf
 
 
 classes <-
-query(sql_statement = "SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id = 'HemOnc' AND standard_concept = 'C' AND invalid_reason IS NULL;")
+query(sql_statement = glue::glue("SELECT * FROM {schema}.concept WHERE vocabulary_id = 'HemOnc' AND standard_concept = 'C' AND invalid_reason IS NULL;"))
 classes
 
 
@@ -182,7 +182,7 @@ for (i in seq_along(classes4)) {
 
 
 subclassof <-
-query(sql_statement = "SELECT ca.* FROM omop_vocabulary.concept_ancestor ca INNER JOIN omop_vocabulary.concept a ON a.concept_id = ca.ancestor_concept_id INNER JOIN omop_vocabulary.concept d ON d.concept_id = ca.descendant_concept_id WHERE a.vocabulary_id = 'HemOnc' AND a.standard_concept = 'C' AND a.invalid_reason IS NULL AND d.vocabulary_id = 'HemOnc' AND d.standard_concept = 'C' AND d.invalid_reason IS NULL;")
+query(sql_statement = glue::glue("SELECT ca.* FROM {schema}.concept_ancestor ca INNER JOIN {schema}.concept a ON a.concept_id = ca.ancestor_concept_id INNER JOIN {schema}.concept d ON d.concept_id = ca.descendant_concept_id WHERE a.vocabulary_id = 'HemOnc' AND a.standard_concept = 'C' AND a.invalid_reason IS NULL AND d.vocabulary_id = 'HemOnc' AND d.standard_concept = 'C' AND d.invalid_reason IS NULL;"))
 subclassof
 
 
@@ -286,7 +286,7 @@ drug_rdf5
 
 
 individuals <-
-query(sql_statement = "SELECT * FROM omop_vocabulary.concept WHERE vocabulary_id IN ('HemOnc') AND standard_concept <> 'C' AND  invalid_reason IS NULL;")
+query(sql_statement = glue::glue("SELECT * FROM {schema}.concept WHERE vocabulary_id IN ('HemOnc') AND standard_concept <> 'C' AND  invalid_reason IS NULL;"))
 individuals
 
 
@@ -352,12 +352,13 @@ for (i in seq_along(individuals4)) {
 individual_classes <-
 query(
   sql_statement =
+    glue::glue(
   "
   SELECT ca.*
-  FROM omop_vocabulary.concept_ancestor ca
+  FROM {schema}.concept_ancestor ca
   INNER JOIN
     (SELECT concept_id
-    FROM omop_vocabulary.concept rx
+    FROM {schema}.concept rx
     WHERE
       rx.vocabulary_id IN ('HemOnc') AND
       rx.standard_concept <> 'C' AND
@@ -366,13 +367,13 @@ query(
   INNER JOIN
     (
     SELECT concept_id
-    FROM omop_vocabulary.concept
+    FROM {schema}.concept
     WHERE
       vocabulary_id IN ('HemOnc') AND
       standard_concept = 'C' AND
       invalid_reason IS NULL
     ) atc
-  ON atc.concept_id = ca.ancestor_concept_id;")
+  ON atc.concept_id = ca.ancestor_concept_id;"))
 individual_classes
 
 
