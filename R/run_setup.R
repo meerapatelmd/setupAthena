@@ -26,6 +26,7 @@ run_setup <-
   function(conn,
            conn_fun = "pg13::local_connect()",
            target_schema = "omop_vocabulary",
+           misc_schema = "omop_vocabulary_pp",
            steps = c(
              "drop_tables",
              "copy",
@@ -382,6 +383,8 @@ run_setup <-
       sql_statement <-
         paste(readLines(postprocessing_file),
               collapse = "\n")
+      sql_statement <-
+        glue::glue(sql_statement)
 
       rs <-
         tryCatch(

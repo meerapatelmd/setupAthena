@@ -9,7 +9,7 @@
 / - RxNorm 'Precise Ingredient' concepts are also included
 /   in the `in_pin_min_*` fields
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
-CREATE TABLE IF NOT EXISTS public.process_omop_class_log (
+CREATE TABLE IF NOT EXISTS public.process_{misc_schema}_log (
     process_start_datetime timestamp without time zone,
     process_stop_datetime timestamp without time zone,
     omop_version character varying(255),
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.process_omop_class_log (
     target_row_ct numeric
 );
 
-CREATE TABLE IF NOT EXISTS public.setup_omop_class_log (
+CREATE TABLE IF NOT EXISTS public.setup_{misc_schema}_log (
     soc_datetime timestamp without time zone,
     omop_version character varying(255),
     target_schema character varying(255),
@@ -98,7 +98,7 @@ begin
 	  format(
 	    '
 		SELECT COUNT(*)
-		FROM public.process_omop_class_log l
+		FROM public.process_{misc_schema}_log l
 		WHERE
 		  l.omop_version = ''%s'' AND
 		  l.source_table = ''%s'' AND
@@ -227,8 +227,8 @@ BEGIN
   		INTO start_timestamp
   		;
 
-		drop table if exists omop_class.tmp_omop_atc_classification1;
-		create table omop_class.tmp_omop_atc_classification1 (
+		drop table if exists {misc_schema}.tmp_omop_atc_classification1;
+		create table {misc_schema}.tmp_omop_atc_classification1 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -250,8 +250,8 @@ BEGIN
 		)
 		;
 
-		drop table if exists omop_class.tmp_omop_atc_classification2;
-		create table omop_class.tmp_omop_atc_classification2 (
+		drop table if exists {misc_schema}.tmp_omop_atc_classification2;
+		create table {misc_schema}.tmp_omop_atc_classification2 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -273,8 +273,8 @@ BEGIN
 		)
 		;
 
-		drop table if exists omop_class.tmp_omop_atc_classification3;
-		create table omop_class.tmp_omop_atc_classification3 (
+		drop table if exists {misc_schema}.tmp_omop_atc_classification3;
+		create table {misc_schema}.tmp_omop_atc_classification3 (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -296,8 +296,8 @@ BEGIN
 		)
 		;
 
-		drop table if exists omop_class.omop_atc_classification;
-		create table omop_class.omop_atc_classification (
+		drop table if exists {misc_schema}.omop_atc_classification;
+		create table {misc_schema}.omop_atc_classification (
 		 atc_1st_id bigint,
 		 atc_1st_code text,
 		 atc_1st_name text,
@@ -415,7 +415,7 @@ BEGIN
 		 c2.invalid_reason is null
 		);
 
-		insert into omop_class.tmp_omop_atc_classification1
+		insert into {misc_schema}.tmp_omop_atc_classification1
 		(
 		SELECT DISTINCT
 		 a.atc_1st_id,
@@ -486,7 +486,7 @@ BEGIN
 		);
 
 		-- Traverse the RxNorm Precise Ingredient 'Form of' relationship to include Precise Ingredients
-		INSERT INTO omop_class.tmp_omop_atc_classification2
+		INSERT INTO {misc_schema}.tmp_omop_atc_classification2
 		SELECT DISTINCT
 		 tmp1.atc_1st_id,
 		 tmp1.atc_1st_code,
@@ -506,7 +506,7 @@ BEGIN
 		 pin.concept_id AS in_pin_min_id,
 		 pin.concept_code AS in_pin_min_code,
 		 pin.concept_name AS in_pin_min_name
-		FROM omop_class.tmp_omop_atc_classification1 tmp1
+		FROM {misc_schema}.tmp_omop_atc_classification1 tmp1
 		LEFT JOIN omop_vocabulary.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_min_id
 		INNER JOIN omop_vocabulary.concept pin
@@ -517,7 +517,7 @@ BEGIN
 		;
 
 	        -- Traverse the RxNorm Multiple Ingredient 'Mapped from' relationship
-		INSERT INTO omop_class.tmp_omop_atc_classification3
+		INSERT INTO {misc_schema}.tmp_omop_atc_classification3
 		SELECT DISTINCT
 		 tmp1.atc_1st_id,
 		 tmp1.atc_1st_code,
@@ -537,7 +537,7 @@ BEGIN
 		 ming.concept_id AS in_pin_min_id,
 		 ming.concept_code AS in_pin_min_code,
 		 ming.concept_name AS in_pin_min_name
-		FROM omop_class.tmp_omop_atc_classification1 tmp1
+		FROM {misc_schema}.tmp_omop_atc_classification1 tmp1
 		LEFT JOIN omop_vocabulary.concept_relationship cr
 		ON cr.concept_id_2 = tmp1.in_pin_min_id
 		INNER JOIN omop_vocabulary.concept ming
@@ -550,17 +550,17 @@ BEGIN
 
 
 		-- Write final table
-		INSERT INTO omop_class.omop_atc_classification
-		SELECT * FROM omop_class.tmp_omop_atc_classification1
+		INSERT INTO {misc_schema}.omop_atc_classification
+		SELECT * FROM {misc_schema}.tmp_omop_atc_classification1
 		UNION
-		SELECT * FROM omop_class.tmp_omop_atc_classification2
+		SELECT * FROM {misc_schema}.tmp_omop_atc_classification2
 		UNION
-		SELECT * FROM omop_class.tmp_omop_atc_classification3
+		SELECT * FROM {misc_schema}.tmp_omop_atc_classification3
 		;
 
-		DROP TABLE omop_class.tmp_omop_atc_classification1;
-		DROP TABLE omop_class.tmp_omop_atc_classification2;
-		DROP TABLE omop_class.tmp_omop_atc_classification3;
+		DROP TABLE {misc_schema}.tmp_omop_atc_classification1;
+		DROP TABLE {misc_schema}.tmp_omop_atc_classification2;
+		DROP TABLE {misc_schema}.tmp_omop_atc_classification3;
 
 		SELECT get_log_timestamp()
 		INTO stop_timestamp
@@ -574,14 +574,14 @@ BEGIN
 
 		SELECT COUNT(*)
 		INTO target_rows
-		FROM omop_class.omop_atc_classification
+		FROM {misc_schema}.omop_atc_classification
 		;
 
 
 		EXECUTE
 		format(
 			'
-			INSERT INTO public.setup_omop_class_log
+			INSERT INTO public.setup_{misc_schema}_log
 			VALUES (
 			''%s'', -- soc_datetime timestamp without time zone,
 	    	''%s'', -- omop_version character varying(255),
@@ -591,7 +591,7 @@ BEGIN
 	    	);',
 	    	stop_timestamp,
 	    	omop_version,
-	    	'omop_class',
+	    	'{misc_schema}',
 	    	target_table,
 	    	target_rows
 	    	);
@@ -600,7 +600,7 @@ BEGIN
 		EXECUTE
 		format(
 		'
-		INSERT INTO public.process_omop_class_log
+		INSERT INTO public.process_{misc_schema}_log
 		VALUES (
 		''%s'', -- process_start_datetime timestamp without time zone,
     		''%s'', -- process_stop_datetime timestamp without time zone,
@@ -615,7 +615,7 @@ BEGIN
 			start_timestamp, -- process_start_datetime timestamp without time zone,
     		stop_timestamp,  -- process_stop_datetime timestamp without time zone,
     		omop_version, -- omop_version character varying(255),
-    		'omop_class', -- target_schema character varying(255),
+    		'{misc_schema}', -- target_schema character varying(255),
     		source_table, -- source_table character varying(255),
     		target_table, -- target_table character varying(255),
     		source_rows, -- source_row_ct numeric,
