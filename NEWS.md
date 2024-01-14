@@ -1,3 +1,11 @@
+# setupAthena 1.0.0
+
+* Fixed bug that did not replace all special characters 
+  in vocabulary_id when creating a depivotted log table 
+  by vocabularies  
+  
+
+
 # setupAthena 0.8.0  
 
 * Changed default target schema to 'omop_athena'  
@@ -10,7 +18,6 @@ as expected
 
 * Added conditions that warns the user if the `release_version` 
 is already logged in the database  
-
 
 
 # setupAthena 0.7.0 (2021-12-09)  
