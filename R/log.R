@@ -155,9 +155,15 @@ log <-
       dplyr::rename_all(tolower) %>%
       dplyr::rename_all(
         stringr::str_replace_all,
-        "[ ]|[+]",
+        "[ ]|[+]|[-]",
         "_"
+      ) %>%
+      dplyr::rename_all(
+        stringr::str_replace_all,
+        "[']",
+        ""
       )
+    
     new_log_entry2 <-
     new_log_entry2 %>%
       dplyr::select(dplyr::all_of(sort(colnames(new_log_entry2))))
