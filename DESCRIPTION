@@ -1,7 +1,7 @@
 Package: setupAthena
 Title: Setup or Update a Postgres Instance of the Athena
     Vocabularies
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person("Meera", "Patel, MD",
     email = "patelmeeray@gmail.com", 
@@ -38,7 +38,6 @@ VignetteBuilder:
 Remotes: 
     meerapatelmd/pg13,
     meerapatelmd/secretary,
-    meerapatelmd/chariotViz,
     r-lib/cli
 Encoding: UTF-8
 LazyData: true
