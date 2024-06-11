@@ -20,7 +20,7 @@
 #' @importFrom cli cat_line cat_boxx cli_alert_warning
 #' @importFrom secretary typewrite press_enter
 #' @importFrom SqlRender render
-#' @importFrom chariotViz get_version_key setup_chariotViz
+
 
 run_setup <-
   function(conn,
@@ -31,8 +31,7 @@ run_setup <-
              "copy",
              "log",
              "indices",
-             "constraints",
-             "chariotviz_cache"
+             "constraints"
            ),
            postprocessing =
              c("omop_atc_classification"),
@@ -427,17 +426,4 @@ run_setup <-
       )
     }
 
-    if ("chariotviz_cache" %in% steps) {
-
-      version_key <-
-        chariotViz::get_version_key(conn = conn)
-
-      chariotViz::setup_chariotViz(conn = conn,
-                                   schema = target_schema,
-                                   verbose = verbose,
-                                   render_sql = render_sql,
-                                   version_key = version_key)
-
-
-    }
   }

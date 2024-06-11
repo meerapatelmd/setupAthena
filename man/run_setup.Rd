@@ -8,7 +8,7 @@ run_setup(
   conn,
   conn_fun = "pg13::local_connect()",
   target_schema = "omop_athena",
-  steps = c("drop_tables", "copy", "log", "indices", "constraints", "chariotviz_cache"),
+  steps = c("drop_tables", "copy", "log", "indices", "constraints"),
   postprocessing = c("omop_atc_classification"),
   path_to_csvs,
   release_version,
